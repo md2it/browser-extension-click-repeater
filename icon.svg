@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" role="img" aria-label="Macros Repeater icon">
+  <rect width="24" height="24" fill="#012292" />
+  <path
+    fill="#ffffff"
+    d="M1.5 22.5V1.5h4.5L12 12.5 18 1.5h4.5v21H18V9.5L12 20 6 9.5v13H1.5z"
+  />
+</svg>

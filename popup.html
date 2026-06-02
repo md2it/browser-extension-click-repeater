@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Macros Repeater</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="popup">
+      <button id="new-macro-btn" class="btn btn-primary" type="button">NEW macros</button>
+
+      <section class="default-block">
+        <h2 class="section-title">Дефолтный macros</h2>
+        <div class="default-row">
+          <span id="default-macro-name" class="default-name">Не выбран</span>
+        </div>
+      </section>
+
+      <section>
+        <ul id="macros-list" class="macros-list" aria-label="Список macros"></ul>
+      </section>
+
+      <p id="status-line" class="status-line" role="status" aria-live="polite"></p>
+    </main>
+
+    <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+      <div class="modal">
+        <h3 id="edit-modal-title">Редактирование macros</h3>
+
+        <label class="field">
+          <span>Название</span>
+          <input id="edit-name" type="text" />
+        </label>
+
+        <label class="field">
+          <span>Число повторов</span>
+          <input id="edit-repeats" type="number" min="1" step="1" />
+        </label>
+
+        <section class="field">
+          <span>Список шагов</span>
+          <ul id="edit-steps" class="steps-list"></ul>
+        </section>
+
+        <div class="modal-actions">
+          <button id="save-edit-btn" class="btn btn-primary" type="button">Сохранить</button>
+          <button id="cancel-edit-btn" class="btn" type="button">Отмена</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+      <div class="modal">
+        <h3 id="delete-modal-title" class="danger-text">Удалить <span id="delete-macro-name"></span>?</h3>
+        <div class="modal-actions">
+          <button id="confirm-delete-btn" class="btn btn-danger" type="button">Да</button>
+          <button id="cancel-delete-btn" class="btn btn-success" type="button">Нет</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
