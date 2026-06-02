@@ -193,6 +193,19 @@ async function stopExecutionWithEvent(event) {
   await syncActionBadge();
 }
 
+async function sendRecordingListenerMessage(tabId, message) {
+  if (!Number.isInteger(tabId)) {
+    return { ok: false, error: "tab_id_required" };
+  }
+
+  try {
+    const response = await chrome.tabs.sendMessage(tabId, message);
+    return response?.ok ? { ok: true } : { ok: false, error: response?.error ?? "listener_message_failed" };
+  } catch {
+    return { ok: false, error: "tab_unreachable" };
+  }
+}
+
 async function openPopupWithCompletionMessage() {
   if (!chrome.action || typeof chrome.action.openPopup !== "function") {
     return false;
@@ -290,6 +303,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return;
       }
 
+      const previousSession = await readSession();
+      if (previousSession?.isActive) {
+        await sendRecordingListenerMessage(previousSession.tabId, { type: "recording-listener-stop" });
+      }
+
       const session = {
         isActive: true,
         mode,
@@ -300,6 +318,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       await writeSession(session);
       await syncActionBadge();
+      const listenerResponse = await sendRecordingListenerMessage(tabId, {
+        type: "recording-listener-start",
+        mode
+      });
+      if (!listenerResponse.ok) {
+        await clearSession();
+        await syncActionBadge();
+        sendResponse({ ok: false, error: listenerResponse.error });
+        return;
+      }
+
       sendResponse({ ok: true });
     })().catch(() => sendResponse({ ok: false, error: "start_failed" }));
 
@@ -317,6 +346,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       await clearSession();
       await syncActionBadge();
+      await sendRecordingListenerMessage(session.tabId, { type: "recording-listener-stop" });
       sendResponse({
         ok: true,
         hasSession: true,
@@ -371,7 +401,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "recording-status") {
     (async () => {
       const session = await readSession();
-      sendResponse({ ok: true, isActive: Boolean(session?.isActive) });
+      const isSenderTab = Number.isInteger(sender?.tab?.id) && sender.tab.id === session?.tabId;
+      sendResponse({
+        ok: true,
+        isActive: Boolean(session?.isActive && isSenderTab),
+        mode: session?.mode === "selectors" ? "selectors" : "coordinates"
+      });
     })().catch(() => sendResponse({ ok: false, isActive: false }));
 
     return true;

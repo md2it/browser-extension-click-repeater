@@ -52,6 +52,12 @@ const HUMAN_STEP_MIN_DELAY_MS = 500;
 const HUMAN_STEP_MAX_DELAY_MS = 1000;
 const HUMAN_MOVE_MIN_DELAY_MS = 8;
 const HUMAN_MOVE_MAX_DELAY_MS = 22;
+const HUMAN_BEFORE_DOWN_MIN_DELAY_MS = 80;
+const HUMAN_BEFORE_DOWN_MAX_DELAY_MS = 250;
+const HUMAN_HOLD_MIN_DELAY_MS = 50;
+const HUMAN_HOLD_MAX_DELAY_MS = 150;
+const HUMAN_AFTER_UP_MIN_DELAY_MS = 20;
+const HUMAN_AFTER_UP_MAX_DELAY_MS = 120;
 const VIEWPORT_EDGE_PADDING = 2;
 const TRACKER_DEFAULT_SIZE = 24;
 const TRACKER_ACTIVE_SIZE = 36;
@@ -68,6 +74,8 @@ const executionState = {
   stopRequested: false,
   token: 0,
   lastPoint: null,
+  lastTarget: null,
+  lastDelayMs: null,
   trackMoves: false
 };
 
@@ -82,6 +90,14 @@ const shortcutState = {
   hintTimerId: null
 };
 
+const recordingState = {
+  isActive: false,
+  mode: "coordinates"
+};
+
+let isRecordingClickListenerAttached = false;
+let isExecutionClickListenerAttached = false;
+
 function randomBetween(min, max) {
   return min + Math.random() * (max - min);
 }
@@ -92,6 +108,20 @@ function clamp(value, min, max) {
 
 function sleep(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function randomDelay(min, max) {
+  const previous = executionState.lastDelayMs;
+  let delay = randomBetween(min, max);
+
+  if (Number.isFinite(previous)) {
+    for (let attempt = 0; attempt < 4 && Math.abs(delay - previous) < 12; attempt += 1) {
+      delay = randomBetween(min, max);
+    }
+  }
+
+  executionState.lastDelayMs = delay;
+  return delay;
 }
 
 function sendRuntimeMessage(message) {
@@ -286,9 +316,14 @@ function getRandomPointInElement(element) {
     return null;
   }
 
+  const minX = rect.left + Math.min(HUMAN_MM_IN_PX, rect.width / 2);
+  const maxX = rect.right - Math.min(HUMAN_MM_IN_PX, rect.width / 2);
+  const minY = rect.top + Math.min(HUMAN_MM_IN_PX, rect.height / 2);
+  const maxY = rect.bottom - Math.min(HUMAN_MM_IN_PX, rect.height / 2);
+
   return normalizeViewportPoint({
-    x: randomBetween(rect.left, rect.right),
-    y: randomBetween(rect.top, rect.bottom)
+    x: randomBetween(minX, maxX),
+    y: randomBetween(minY, maxY)
   });
 }
 
@@ -343,40 +378,45 @@ function buildHumanPath(startPoint, endPoint) {
   return path;
 }
 
-function dispatchMouseMove(point) {
+function getPointTarget(point) {
   const normalized = normalizeViewportPoint(point);
-  const target = document.elementFromPoint(normalized.x, normalized.y) || document.documentElement;
-  const init = {
-    bubbles: true,
-    cancelable: true,
-    composed: true,
-    clientX: normalized.x,
-    clientY: normalized.y,
-    screenX: window.screenX + normalized.x,
-    screenY: window.screenY + normalized.y
-  };
-
-  target.dispatchEvent(
-    new PointerEvent("pointermove", {
-      ...init,
-      pointerId: 1,
-      pointerType: "mouse",
-      isPrimary: true,
-      buttons: 0
-    })
-  );
-  target.dispatchEvent(
-    new MouseEvent("mousemove", {
-      ...init,
-      buttons: 0
-    })
-  );
-  moveTracker(normalized);
+  const target = document.elementFromPoint(normalized.x, normalized.y);
+  return target instanceof Element ? target : null;
 }
 
-function dispatchMouseClick(point) {
+function applyMovement(event, init) {
+  if (!("movementX" in init) || !("movementY" in init)) {
+    return event;
+  }
+
+  try {
+    Object.defineProperty(event, "movementX", { value: init.movementX });
+    Object.defineProperty(event, "movementY", { value: init.movementY });
+  } catch {
+    // Some browser event implementations expose read-only movement fields.
+  }
+
+  return event;
+}
+
+function buildPointerEvent(type, init) {
+  const event = new PointerEvent(type, {
+    ...init,
+    pointerId: 1,
+    pointerType: "mouse",
+    isPrimary: true
+  });
+  return applyMovement(event, init);
+}
+
+function buildMouseEvent(type, init) {
+  return applyMovement(new MouseEvent(type, init), init);
+}
+
+function dispatchMouseMove(point, previousPoint) {
   const normalized = normalizeViewportPoint(point);
-  const target = document.elementFromPoint(normalized.x, normalized.y) || document.documentElement;
+  const previous = previousPoint ? normalizeViewportPoint(previousPoint) : normalized;
+  const target = getPointTarget(normalized) || document.documentElement;
   const init = {
     bubbles: true,
     cancelable: true,
@@ -385,31 +425,84 @@ function dispatchMouseClick(point) {
     clientY: normalized.y,
     screenX: window.screenX + normalized.x,
     screenY: window.screenY + normalized.y,
+    movementX: normalized.x - previous.x,
+    movementY: normalized.y - previous.y
+  };
+
+  target.dispatchEvent(buildPointerEvent("pointermove", { ...init, buttons: 0 }));
+  target.dispatchEvent(
+    buildMouseEvent("mousemove", {
+      ...init,
+      buttons: 0
+    })
+  );
+  moveTracker(normalized);
+  return { point: normalized, target };
+}
+
+function dispatchTargetEntry(target, point, relatedTarget) {
+  const normalized = normalizeViewportPoint(point);
+  const init = {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    clientX: normalized.x,
+    clientY: normalized.y,
+    screenX: window.screenX + normalized.x,
+    screenY: window.screenY + normalized.y,
+    movementX: 0,
+    movementY: 0,
+    button: 0,
+    buttons: 0,
+    relatedTarget,
+    detail: 1
+  };
+
+  target.dispatchEvent(buildPointerEvent("pointerover", init));
+  target.dispatchEvent(buildPointerEvent("pointerenter", { ...init, bubbles: false }));
+  target.dispatchEvent(buildMouseEvent("mouseover", init));
+  target.dispatchEvent(buildMouseEvent("mouseenter", { ...init, bubbles: false }));
+}
+
+async function dispatchMouseClick(token, target, point) {
+  const normalized = normalizeViewportPoint(point);
+  const init = {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    clientX: normalized.x,
+    clientY: normalized.y,
+    screenX: window.screenX + normalized.x,
+    screenY: window.screenY + normalized.y,
+    movementX: 0,
+    movementY: 0,
     button: 0,
     buttons: 1,
     detail: 1
   };
 
-  target.dispatchEvent(
-    new PointerEvent("pointerdown", {
-      ...init,
-      pointerId: 1,
-      pointerType: "mouse",
-      isPrimary: true
-    })
-  );
-  target.dispatchEvent(new MouseEvent("mousedown", init));
-  target.dispatchEvent(
-    new PointerEvent("pointerup", {
-      ...init,
-      pointerId: 1,
-      pointerType: "mouse",
-      isPrimary: true,
-      buttons: 0
-    })
-  );
-  target.dispatchEvent(new MouseEvent("mouseup", { ...init, buttons: 0 }));
-  target.dispatchEvent(new MouseEvent("click", { ...init, buttons: 0 }));
+  await sleep(randomDelay(HUMAN_BEFORE_DOWN_MIN_DELAY_MS, HUMAN_BEFORE_DOWN_MAX_DELAY_MS));
+  if (shouldStop(token)) {
+    throw new Error("stopped");
+  }
+
+  target.dispatchEvent(buildPointerEvent("pointerdown", init));
+  target.dispatchEvent(buildMouseEvent("mousedown", init));
+
+  await sleep(randomDelay(HUMAN_HOLD_MIN_DELAY_MS, HUMAN_HOLD_MAX_DELAY_MS));
+  if (shouldStop(token)) {
+    throw new Error("stopped");
+  }
+
+  target.dispatchEvent(buildPointerEvent("pointerup", { ...init, buttons: 0 }));
+  target.dispatchEvent(buildMouseEvent("mouseup", { ...init, buttons: 0 }));
+
+  await sleep(randomDelay(HUMAN_AFTER_UP_MIN_DELAY_MS, HUMAN_AFTER_UP_MAX_DELAY_MS));
+  if (shouldStop(token)) {
+    throw new Error("stopped");
+  }
+
+  target.dispatchEvent(buildMouseEvent("click", { ...init, buttons: 0 }));
   pulseTracker();
 }
 
@@ -424,28 +517,121 @@ function shouldStop(token) {
   return !executionState.isRunning || executionState.stopRequested || executionState.token !== token;
 }
 
+function handleExecutionClickInterrupt(event) {
+  if (!event.isTrusted) {
+    return;
+  }
+
+  executionState.stopRequested = true;
+  stopExecutionClickListener();
+  void chrome.runtime.sendMessage({ type: "execution-user-click-interrupt" });
+}
+
+function startExecutionClickListener() {
+  if (isExecutionClickListenerAttached) {
+    return;
+  }
+
+  document.addEventListener("click", handleExecutionClickInterrupt, true);
+  isExecutionClickListenerAttached = true;
+}
+
+function stopExecutionClickListener() {
+  if (!isExecutionClickListenerAttached) {
+    return;
+  }
+
+  document.removeEventListener("click", handleExecutionClickInterrupt, true);
+  isExecutionClickListenerAttached = false;
+}
+
+function handleRecordingClick(event) {
+  if (!recordingState.isActive) {
+    return;
+  }
+
+  if (recordingState.mode === "selectors") {
+    const target = getEventElement(event);
+    const selector = target ? buildSelector(target) : "";
+    void chrome.runtime.sendMessage({
+      type: "recording-click",
+      selector
+    });
+    return;
+  }
+
+  void chrome.runtime.sendMessage({
+    type: "recording-click",
+    x: event.clientX,
+    y: event.clientY
+  });
+}
+
+function startRecordingClickListener(mode) {
+  recordingState.isActive = true;
+  recordingState.mode = mode === "selectors" ? "selectors" : "coordinates";
+
+  if (isRecordingClickListenerAttached) {
+    return;
+  }
+
+  document.addEventListener("click", handleRecordingClick, true);
+  isRecordingClickListenerAttached = true;
+}
+
+function stopRecordingClickListener() {
+  recordingState.isActive = false;
+
+  if (!isRecordingClickListenerAttached) {
+    return;
+  }
+
+  document.removeEventListener("click", handleRecordingClick, true);
+  isRecordingClickListenerAttached = false;
+}
+
 async function runStep(token, fromPoint, step) {
   const stepPoint = resolveStepPoint(step);
   if (!stepPoint) {
-    return fromPoint;
-  }
-
-  const path = buildHumanPath(fromPoint, stepPoint);
-  for (const point of path) {
-    if (shouldStop(token)) {
-      return point;
-    }
-
-    dispatchMouseMove(point);
-    await sleep(randomBetween(HUMAN_MOVE_MIN_DELAY_MS, HUMAN_MOVE_MAX_DELAY_MS));
-  }
-
-  if (shouldStop(token)) {
-    return stepPoint;
+    throw new Error("target_not_found");
   }
 
   const clickPoint = applyClickOffset(stepPoint);
-  dispatchMouseClick(clickPoint);
+  const path = buildHumanPath(fromPoint, clickPoint);
+  let previousPoint = fromPoint;
+
+  for (const point of path) {
+    if (shouldStop(token)) {
+      throw new Error("stopped");
+    }
+
+    const moveResult = dispatchMouseMove(point, previousPoint);
+    previousPoint = moveResult.point;
+    await sleep(randomDelay(HUMAN_MOVE_MIN_DELAY_MS, HUMAN_MOVE_MAX_DELAY_MS));
+  }
+
+  if (shouldStop(token)) {
+    throw new Error("stopped");
+  }
+
+  const clickTarget = getPointTarget(clickPoint);
+  if (!clickTarget) {
+    throw new Error("target_not_found");
+  }
+
+  if (clickTarget !== executionState.lastTarget) {
+    dispatchTargetEntry(clickTarget, clickPoint, executionState.lastTarget);
+    executionState.lastTarget = clickTarget;
+  }
+
+  await dispatchMouseClick(token, clickTarget, clickPoint);
+  if (!shouldStop(token)) {
+    await sleep(randomDelay(HUMAN_STEP_MIN_DELAY_MS, HUMAN_STEP_MAX_DELAY_MS));
+  }
+  if (shouldStop(token)) {
+    throw new Error("stopped");
+  }
+
   return clickPoint;
 }
 
@@ -469,7 +655,10 @@ async function runExecution(payload) {
   const token = executionState.token;
   executionState.trackMoves = trackMoves;
   executionState.lastPoint = executionState.lastPoint ?? getInitialPoint();
+  executionState.lastTarget = getPointTarget(executionState.lastPoint);
+  executionState.lastDelayMs = null;
   moveTracker(executionState.lastPoint);
+  startExecutionClickListener();
   const totalSteps = repeats * steps.length;
   let completedSteps = 0;
 
@@ -503,9 +692,7 @@ async function runExecution(payload) {
             remainingMs: remainingSteps * HUMAN_STEP_MAX_DELAY_MS
           });
 
-          if (remainingSteps > 0) {
-            await sleep(randomBetween(HUMAN_STEP_MIN_DELAY_MS, HUMAN_STEP_MAX_DELAY_MS));
-          }
+          executionState.lastTarget = getPointTarget(executionState.lastPoint) || executionState.lastTarget;
         }
       }
 
@@ -515,7 +702,11 @@ async function runExecution(payload) {
         macroName
       });
     } catch (error) {
-      const stopReason = error instanceof Error && error.message === "stopped" ? "user_stop" : "execution_error";
+      const stopReason = error instanceof Error && error.message === "stopped"
+        ? "user_stop"
+        : error instanceof Error && error.message === "target_not_found"
+          ? "target_not_found"
+          : "execution_error";
       void chrome.runtime.sendMessage({
         type: "execution-stopped",
         macroId,
@@ -527,7 +718,10 @@ async function runExecution(payload) {
         executionState.isRunning = false;
         executionState.stopRequested = false;
         executionState.trackMoves = false;
+        executionState.lastTarget = null;
+        executionState.lastDelayMs = null;
       }
+      stopExecutionClickListener();
       removeTrackerElement();
     }
   })();
@@ -555,34 +749,25 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     }
 
     executionState.stopRequested = true;
+    stopExecutionClickListener();
     sendResponse({ ok: true, wasRunning: true });
+    return;
+  }
+
+  if (message.type === "recording-listener-start") {
+    startRecordingClickListener(message.mode);
+    sendResponse({ ok: true });
+    return;
+  }
+
+  if (message.type === "recording-listener-stop") {
+    stopRecordingClickListener();
+    sendResponse({ ok: true });
     return;
   }
 
   sendResponse({ ok: false, error: "unknown_message_type" });
 });
-
-document.addEventListener(
-  "click",
-  (event) => {
-    if (executionState.isRunning && event.isTrusted) {
-      executionState.stopRequested = true;
-      void chrome.runtime.sendMessage({ type: "execution-user-click-interrupt" });
-      return;
-    }
-
-    const target = getEventElement(event);
-    const selector = target ? buildSelector(target) : "";
-
-    void chrome.runtime.sendMessage({
-      type: "recording-click",
-      x: event.clientX,
-      y: event.clientY,
-      selector
-    });
-  },
-  true
-);
 
 document.addEventListener(
   "keydown",
@@ -607,6 +792,12 @@ document.addEventListener(
   },
   true
 );
+
+void sendRuntimeMessage({ type: "recording-status" }).then((response) => {
+  if (response?.ok && response.isActive) {
+    startRecordingClickListener(response.mode);
+  }
+});
 
 document.addEventListener(
   "keyup",
