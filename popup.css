@@ -231,6 +231,62 @@ body {
   background: #fff;
 }
 
+.default-radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.default-radio-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d8dcec;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.default-radio-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.default-radio-box {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #8f96b3;
+  border-radius: 3px;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.default-radio-text {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.default-radio-input:checked + .default-radio-box {
+  background: #012292;
+  border-color: #012292;
+}
+
+.default-radio-input:checked + .default-radio-box::after {
+  content: "";
+  display: block;
+  width: 7px;
+  height: 4px;
+  border: 2px solid #fff;
+  border-top: 0;
+  border-right: 0;
+  transform: translate(2px, 3px) rotate(-45deg);
+}
+
 .steps-list {
   list-style: none;
   margin: 0;

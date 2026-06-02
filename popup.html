@@ -23,6 +23,7 @@
       </section>
 
       <p id="status-line" class="status-line" role="status" aria-live="polite"></p>
+      <button id="stop-execution-btn" class="btn btn-danger hidden" type="button">STOP</button>
     </main>
 
     <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
@@ -76,10 +77,10 @@
     <div id="default-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="default-modal-title">
       <div class="modal">
         <h3 id="default-modal-title">Выбор дефолтного macros</h3>
-        <label class="field">
+        <section class="field">
           <span>Macros</span>
-          <select id="default-macro-select"></select>
-        </label>
+          <div id="default-macro-radio-list" class="default-radio-list" role="radiogroup" aria-label="Список macros"></div>
+        </section>
         <div class="modal-actions">
           <button id="save-default-btn" class="btn btn-primary" type="button">Сохранить</button>
           <button id="cancel-default-btn" class="btn" type="button">Отмена</button>

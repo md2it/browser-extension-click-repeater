@@ -31,10 +31,26 @@ function buildSelector(element) {
   return parts.join(" > ");
 }
 
+function getEventElement(event) {
+  if (event.target instanceof Element) {
+    return event.target;
+  }
+
+  if (typeof event.composedPath === "function") {
+    const path = event.composedPath();
+    const firstElement = path.find((item) => item instanceof Element);
+    if (firstElement instanceof Element) {
+      return firstElement;
+    }
+  }
+
+  return null;
+}
+
 document.addEventListener(
   "click",
   (event) => {
-    const target = event.target instanceof Element ? event.target : null;
+    const target = getEventElement(event);
     const selector = target ? buildSelector(target) : "";
 
     void chrome.runtime.sendMessage({

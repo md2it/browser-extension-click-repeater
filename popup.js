@@ -6,7 +6,8 @@ let defaultMacroId = null;
 const state = {
   modalMode: null,
   editMacroId: null,
-  deleteMacroId: null
+  deleteMacroId: null,
+  executionPollTimer: null
 };
 
 const refs = {
@@ -15,6 +16,7 @@ const refs = {
   status: document.getElementById("status-line"),
   defaultName: document.getElementById("default-macro-name"),
   defaultEditBtn: document.getElementById("default-macro-edit-btn"),
+  stopExecutionBtn: document.getElementById("stop-execution-btn"),
   newMacroBtn: document.getElementById("new-macro-btn"),
   editModal: document.getElementById("edit-modal"),
   editModalTitle: document.getElementById("edit-modal-title"),
@@ -32,7 +34,7 @@ const refs = {
   recordSelectorsBtn: document.getElementById("record-selectors-btn"),
   recordCancelBtn: document.getElementById("record-cancel-btn"),
   defaultModal: document.getElementById("default-modal"),
-  defaultSelect: document.getElementById("default-macro-select"),
+  defaultRadioList: document.getElementById("default-macro-radio-list"),
   saveDefaultBtn: document.getElementById("save-default-btn"),
   cancelDefaultBtn: document.getElementById("cancel-default-btn")
 };
@@ -161,6 +163,105 @@ function syncPopupHeight() {
   document.body.style.height = `${targetHeight}px`;
 }
 
+function clearExecutionPolling() {
+  if (state.executionPollTimer !== null) {
+    window.clearInterval(state.executionPollTimer);
+    state.executionPollTimer = null;
+  }
+}
+
+function formatRemainingMs(remainingMs) {
+  const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function renderExecutionStatus(executionState) {
+  if (!executionState?.isRunning) {
+    refs.stopExecutionBtn.classList.add("hidden");
+    syncPopupHeight();
+    return;
+  }
+
+  refs.stopExecutionBtn.classList.remove("hidden");
+  const remaining = formatRemainingMs(executionState.remainingMs ?? 0);
+  setStatus(`Выполняется "${executionState.macroName}". Осталось: ${remaining}`);
+}
+
+async function refreshExecutionStatus({ silent = false } = {}) {
+  const response = await sendRuntimeMessage({ type: "execution-status" });
+  const executionState = response?.state ?? null;
+
+  if (executionState?.isRunning) {
+    renderExecutionStatus(executionState);
+    if (state.executionPollTimer === null) {
+      state.executionPollTimer = window.setInterval(() => {
+        void refreshExecutionStatus({ silent: true });
+      }, 1000);
+    }
+    return;
+  }
+
+  clearExecutionPolling();
+  refs.stopExecutionBtn.classList.add("hidden");
+  if (!silent) {
+    if (response?.lastEvent === "completed" && response.completedMacroName) {
+      setStatus(`Выполнение "${response.completedMacroName}" завершено.`);
+    } else if (response?.lastEvent === "stopped" && response.stoppedMacroName) {
+      setStatus(`Выполнение "${response.stoppedMacroName}" остановлено.`);
+    }
+  } else {
+    syncPopupHeight();
+  }
+}
+
+async function startExecution(macroId) {
+  const macro = macros.find((item) => item.id === macroId);
+  if (!macro) {
+    setStatus("Macros не найден.");
+    return;
+  }
+
+  const response = await sendRuntimeMessage({
+    type: "execution-start",
+    macroId: macro.id,
+    macroName: macro.name,
+    repeats: macro.repeats
+  });
+
+  if (!response?.ok) {
+    if (response?.error === "already_running") {
+      renderExecutionStatus(response.state);
+      setStatus(`Уже выполняется "${response.state?.macroName ?? "макрос"}".`);
+      return;
+    }
+
+    setStatus("Не удалось запустить выполнение macros.");
+    return;
+  }
+
+  renderExecutionStatus(response.state);
+  setStatus(`Запущено выполнение "${macro.name}".`);
+  await refreshExecutionStatus({ silent: true });
+}
+
+async function stopExecution() {
+  const response = await sendRuntimeMessage({ type: "execution-stop" });
+  if (!response?.ok) {
+    setStatus("Не удалось остановить выполнение.");
+    return;
+  }
+
+  clearExecutionPolling();
+  refs.stopExecutionBtn.classList.add("hidden");
+  if (response.wasRunning && response.stoppedMacroName) {
+    setStatus(`Выполнение "${response.stoppedMacroName}" остановлено.`);
+  } else {
+    setStatus("Активного выполнения нет.");
+  }
+}
+
 function render() {
   refs.list.innerHTML = "";
   const defaultMacro = getDefaultMacro();
@@ -271,16 +372,37 @@ function openDefaultModal() {
     return;
   }
 
-  refs.defaultSelect.innerHTML = "";
+  refs.defaultRadioList.innerHTML = "";
   for (const macro of macros) {
-    const option = document.createElement("option");
-    option.value = macro.id;
-    option.textContent = macro.name;
-    refs.defaultSelect.append(option);
+    const optionLabel = document.createElement("label");
+    optionLabel.className = "default-radio-option";
+
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "default-macro-id";
+    input.value = macro.id;
+    input.className = "default-radio-input";
+
+    const box = document.createElement("span");
+    box.className = "default-radio-box";
+    box.setAttribute("aria-hidden", "true");
+
+    const text = document.createElement("span");
+    text.className = "default-radio-text";
+    text.textContent = macro.name;
+
+    optionLabel.append(input, box, text);
+    refs.defaultRadioList.append(optionLabel);
   }
 
   const selectedId = defaultMacroId && macros.some((macro) => macro.id === defaultMacroId) ? defaultMacroId : macros[0].id;
-  refs.defaultSelect.value = selectedId;
+  const radioInputs = refs.defaultRadioList.querySelectorAll("input[name='default-macro-id']");
+  for (const input of radioInputs) {
+    if (input.value === selectedId) {
+      input.checked = true;
+      break;
+    }
+  }
   refs.defaultModal.classList.remove("hidden");
   syncPopupHeight();
 }
@@ -288,6 +410,34 @@ function openDefaultModal() {
 function closeDefaultModal() {
   refs.defaultModal.classList.add("hidden");
   syncPopupHeight();
+}
+
+function closeModalByEscape() {
+  if (!refs.editModal.classList.contains("hidden")) {
+    closeEditModal();
+    setStatus("Редактирование отменено.");
+    return true;
+  }
+
+  if (!refs.deleteModal.classList.contains("hidden")) {
+    closeDeleteModal();
+    setStatus("Удаление отменено.");
+    return true;
+  }
+
+  if (!refs.defaultModal.classList.contains("hidden")) {
+    closeDefaultModal();
+    setStatus("Выбор дефолтного macros отменен.");
+    return true;
+  }
+
+  if (!refs.recordModeModal.classList.contains("hidden")) {
+    closeRecordModeModal();
+    setStatus("Создание macros отменено.");
+    return true;
+  }
+
+  return false;
 }
 
 async function startCreateMode(mode) {
@@ -373,7 +523,7 @@ refs.list.addEventListener("click", (event) => {
   }
 
   if (action === "run") {
-    setStatus("Исполнение macros будет в отдельной итерации.");
+    void startExecution(macroId);
     return;
   }
 
@@ -389,6 +539,10 @@ refs.list.addEventListener("click", (event) => {
 
 refs.newMacroBtn.addEventListener("click", () => {
   openRecordModeModal();
+});
+
+refs.stopExecutionBtn.addEventListener("click", () => {
+  void stopExecution();
 });
 
 refs.defaultEditBtn.addEventListener("click", () => {
@@ -484,7 +638,8 @@ refs.recordCancelBtn.addEventListener("click", () => {
 });
 
 refs.saveDefaultBtn.addEventListener("click", async () => {
-  const selectedId = refs.defaultSelect.value;
+  const selectedInput = refs.defaultRadioList.querySelector("input[name='default-macro-id']:checked");
+  const selectedId = selectedInput ? selectedInput.value : "";
   if (!selectedId) {
     setStatus("Выберите macros.");
     return;
@@ -499,10 +654,23 @@ refs.cancelDefaultBtn.addEventListener("click", () => {
   setStatus("Выбор дефолтного macros отменен.");
 });
 
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") {
+    return;
+  }
+
+  const didClose = closeModalByEscape();
+  if (didClose) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+});
+
 async function init() {
   await loadMacros();
   const createdMacro = await completeCreateModeIfNeeded();
   render();
+  await refreshExecutionStatus({ silent: true });
   if (createdMacro) {
     openEditModal(createdMacro.id);
     setStatus("Создание завершено. Проверьте и сохраните параметры macros.");
