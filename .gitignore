@@ -84,4 +84,3 @@ playwright/.cache/
 tmp/
 temp/
 *.local
-AGENTS.md

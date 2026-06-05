@@ -1,6 +1,6 @@
-Используется скрипт `../lib/scripts/minify-and-zip.zsh`:
-1. Берёт /extension
-2. Minify
-3. zip -- название с указанием названия проекта и версии из манифеста
-4. Складывает zip в PUBLICATION/
-Скрипт не меняет ничего, кроме как добавляет zip.
+The `../lib/scripts/minify-and-zip.zsh` script is used:
+1. Takes the `/extension` directory
+2. Minifies its contents
+3. Creates a ZIP archive whose name includes the project name and the version from the manifest
+4. Places the ZIP archive in `PUBLICATION/`
+The script does not modify anything; it only adds the ZIP archive.
