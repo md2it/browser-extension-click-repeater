@@ -21,6 +21,7 @@
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(6px);
+  color: #4f5570;
   cursor: pointer;
 }
 
@@ -41,13 +42,6 @@
   box-shadow: inset 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
-.icon-btn.display-moves-off {
-  color: #8f96b3;
-}
-
-.icon-btn.display-moves-on {
-  color: #012292;
-}
 
 .default-btn.active svg,
 .default-toggle.active svg {
@@ -298,10 +292,6 @@
   background: #f0f2fa;
 }
 
-.default-btn,
-.default-toggle-icon {
-  color: #8f96b3;
-}
 
 .default-btn.active,
 .default-toggle.active .default-toggle-icon {
