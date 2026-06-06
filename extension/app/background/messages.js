@@ -102,8 +102,10 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const repeats = Number.isFinite(repeatsRaw) && repeatsRaw > 0 ? Math.floor(repeatsRaw) : 1;
       const tabId = Number.isInteger(message.tabId) ? message.tabId : null;
       const trackMoves = Boolean(message.trackMoves);
+      const executionSpeedRaw = Number(message.executionSpeed);
+      const executionSpeed = [0.25, 0.5, 1, 2].includes(executionSpeedRaw) ? executionSpeedRaw : 1;
       const steps = Array.isArray(message.steps) ? message.steps.filter((step) => typeof step === "string" && step.trim()) : [];
-      const result = await startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMoves, steps });
+      const result = await startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMoves, executionSpeed, steps });
       sendResponse(result);
     })().catch(() => sendResponse({ ok: false, error: "execution_start_failed" }));
     return true;

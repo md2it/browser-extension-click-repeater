@@ -4,7 +4,10 @@ const SETTINGS_KEY = "popup_settings";
 const macros = [];
 let defaultMacroId = null;
 
+const EXECUTION_SPEED_VALUES = [0.25, 0.5, 1, 2];
+
 const settings = {
+  executionSpeed: 1,
   skipNewMacroExplanation: false,
   skipDisplayMovesExplanation: false,
   skipModeExplanation: false
@@ -62,6 +65,7 @@ const refs = {
   modeDontShow: document.getElementById("mode-dont-show"),
   modePositionBtn: document.getElementById("mode-position-btn"),
   modeElementBtn: document.getElementById("mode-element-btn"),
+  settingExecutionSpeed: document.getElementById("setting-execution-speed"),
   settingSkipNewMacro: document.getElementById("setting-skip-new-macro"),
   settingSkipDisplayMoves: document.getElementById("setting-skip-display-moves"),
   settingSkipMode: document.getElementById("setting-skip-mode")

@@ -136,6 +136,9 @@ async function readSettingsFromStorage() {
     const data = await ext.storage.local.get(SETTINGS_KEY);
     const stored = data?.[SETTINGS_KEY];
     if (stored && typeof stored === "object") {
+      if (EXECUTION_SPEED_VALUES.includes(stored.executionSpeed)) {
+        settings.executionSpeed = stored.executionSpeed;
+      }
       if (typeof stored.skipNewMacroExplanation === "boolean") {
         settings.skipNewMacroExplanation = stored.skipNewMacroExplanation;
       }
@@ -154,6 +157,7 @@ async function persistSettings() {
 }
 
 function syncSettingsUI() {
+  refs.settingExecutionSpeed.textContent = `${settings.executionSpeed}×`;
   refs.settingSkipNewMacro.checked = settings.skipNewMacroExplanation;
   refs.settingSkipDisplayMoves.checked = settings.skipDisplayMovesExplanation;
   refs.settingSkipMode.checked = settings.skipModeExplanation;

@@ -113,7 +113,8 @@ async function startExecution(macroId) {
     repeats: macro.repeats,
     tabId: activeTab.id,
     steps,
-    trackMoves: getDisplayMovesValue(macro)
+    trackMoves: getDisplayMovesValue(macro),
+    executionSpeed: settings.executionSpeed
   });
 
   if (!response?.ok) {

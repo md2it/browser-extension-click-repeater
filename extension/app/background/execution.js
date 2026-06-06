@@ -1,5 +1,5 @@
 
-async function startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMoves, steps }) {
+async function startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMoves, executionSpeed, steps }) {
   const currentState = await getRuntimeExecutionState();
   if (currentState?.isRunning) {
     return { ok: false, error: "already_running", state: currentState };
@@ -35,7 +35,8 @@ async function startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMo
       macroName,
       repeats,
       steps,
-      trackMoves
+      trackMoves,
+      executionSpeed: executionSpeed ?? 1
     });
     if (!tabResponse?.ok) {
       await clearExecutionState();

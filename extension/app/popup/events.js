@@ -298,6 +298,14 @@ refs.displayMovesStealthBtn.addEventListener("click", async () => {
   closeDisplayMovesModal();
 });
 
+refs.settingExecutionSpeed.addEventListener("click", async () => {
+  const currentIndex = EXECUTION_SPEED_VALUES.indexOf(settings.executionSpeed);
+  const nextIndex = (currentIndex + 1) % EXECUTION_SPEED_VALUES.length;
+  settings.executionSpeed = EXECUTION_SPEED_VALUES[nextIndex];
+  syncSettingsUI();
+  await persistSettings();
+});
+
 refs.settingSkipNewMacro.addEventListener("change", async () => {
   settings.skipNewMacroExplanation = refs.settingSkipNewMacro.checked;
   await persistSettings();

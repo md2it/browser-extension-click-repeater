@@ -37,6 +37,12 @@ async function runStep(token, fromPoint, step) {
   if (!shouldStop(token)) {
     await sleep(randomDelay(HUMAN_STEP_MIN_DELAY_MS, HUMAN_STEP_MAX_DELAY_MS));
   }
+  if (!shouldStop(token)) {
+    const tempoDelayMs = EXECUTION_SPEED_TEMPO_DELAYS_MS[executionState.executionSpeed] ?? 500;
+    if (tempoDelayMs > 0) {
+      await sleep(tempoDelayMs);
+    }
+  }
   if (shouldStop(token)) {
     throw new Error("stopped");
   }
@@ -53,6 +59,8 @@ async function runExecution(payload) {
   const macroName = typeof payload?.macroName === "string" && payload.macroName.trim() ? payload.macroName.trim() : "macros";
   const repeats = Number.isFinite(Number(payload?.repeats)) && Number(payload.repeats) > 0 ? Math.floor(Number(payload.repeats)) : 1;
   const trackMoves = Boolean(payload?.trackMoves);
+  const executionSpeedRaw = Number(payload?.executionSpeed);
+  const executionSpeed = [0.25, 0.5, 1, 2].includes(executionSpeedRaw) ? executionSpeedRaw : 1;
   const steps = Array.isArray(payload?.steps) ? payload.steps.filter((step) => typeof step === "string" && step.trim()) : [];
   if (steps.length === 0) {
     return { ok: false, error: "empty_steps" };
@@ -63,6 +71,7 @@ async function runExecution(payload) {
   executionState.token += 1;
   const token = executionState.token;
   executionState.trackMoves = trackMoves;
+  executionState.executionSpeed = executionSpeed;
   executionState.lastPoint = executionState.lastPoint ?? getInitialPoint();
   executionState.lastTarget = getPointTarget(executionState.lastPoint);
   executionState.lastDelayMs = null;
@@ -71,13 +80,16 @@ async function runExecution(payload) {
   const totalSteps = repeats * steps.length;
   let completedSteps = 0;
 
+  const tempoDelayMs = EXECUTION_SPEED_TEMPO_DELAYS_MS[executionSpeed] ?? 500;
+  const msPerStep = HUMAN_STEP_MAX_DELAY_MS + tempoDelayMs;
+
   void chrome.runtime.sendMessage({
     type: "execution-progress",
     macroId,
     macroName,
     completedSteps,
     totalSteps,
-    remainingMs: totalSteps * HUMAN_STEP_MAX_DELAY_MS
+    remainingMs: totalSteps * msPerStep
   });
 
   (async () => {
@@ -98,7 +110,7 @@ async function runExecution(payload) {
             macroName,
             completedSteps,
             totalSteps,
-            remainingMs: remainingSteps * HUMAN_STEP_MAX_DELAY_MS
+            remainingMs: remainingSteps * msPerStep
           });
 
           executionState.lastTarget = getPointTarget(executionState.lastPoint) || executionState.lastTarget;
@@ -127,6 +139,7 @@ async function runExecution(payload) {
         executionState.isRunning = false;
         executionState.stopRequested = false;
         executionState.trackMoves = false;
+        executionState.executionSpeed = 1;
         executionState.lastTarget = null;
         executionState.lastDelayMs = null;
       }
