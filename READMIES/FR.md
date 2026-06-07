@@ -73,6 +73,7 @@ Consultez [tous les parcours utilisateur](../SPEC/user-path.md) pour plus de dé
 - Le mode Position nécessite que le contenu concerné reste aux coordonnées enregistrées
 - Les modifications d'un site web peuvent empêcher l'exécution complète d'une ancienne macro
 - L'extension enregistre et répète uniquement les clics
+- Les clics simulés peuvent être détectés par les sites web même en mode Stealth — les événements générés par le navigateur ne portent pas l'indicateur `isTrusted: true` propre aux interactions utilisateur réelles ; les sites qui vérifient `event.isTrusted` détecteront l'automatisation quelle que soit la méthode utilisée pour déclencher le clic
 
 ## LICENCE
 

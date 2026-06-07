@@ -73,6 +73,7 @@ Weitere Informationen finden Sie unter [alle Benutzerpfade](../SPEC/user-path.md
 - Der Positionsmodus setzt voraus, dass sich der relevante Inhalt weiterhin an den aufgezeichneten Koordinaten befindet
 - Änderungen an einer Website können verhindern, dass ein älteres Makro abgeschlossen wird
 - Die Erweiterung zeichnet ausschließlich Klicks auf und wiederholt sie
+- Simulierte Klicks können von Websites auch im Stealth-Modus erkannt werden — browsergenerierte Ereignisse tragen nicht das Flag `isTrusted: true`, das echten Nutzerinteraktionen vorbehalten ist; Seiten, die `event.isTrusted` prüfen, erkennen die Automatisierung unabhängig davon, wie der Klick ausgelöst wurde
 
 ## LIZENZ
 

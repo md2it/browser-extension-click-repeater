@@ -73,6 +73,7 @@ Consulta [todas las rutas de usuario](../SPEC/user-path.md) para obtener más in
 - El modo Posición requiere que el contenido correspondiente permanezca en las coordenadas grabadas
 - Los cambios en un sitio web pueden impedir que una macro antigua se complete
 - La extensión solo graba y repite clics
+- Los clics simulados pueden ser detectados por los sitios web incluso en modo Stealth — los eventos generados por el navegador no tienen el indicador `isTrusted: true` que llevan las interacciones reales del usuario; los sitios que comprueban `event.isTrusted` detectarán la automatización independientemente de cómo se envíe el clic
 
 ## LICENCIA
 
