@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "en",
   "name": "Macros Repeater",
-  "description": "Minimal dev skeleton for macros repeater extension.",
+  "description": "Record click sequences on web pages and repeat them whenever you need.",
   "version": "1.0.1",
   "background": {
     "service_worker": "sw.js",
