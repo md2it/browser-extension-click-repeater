@@ -181,7 +181,7 @@ kbd {
 
 .about-list li {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 7px;
   margin-bottom: 6px;
   color: #374151;
@@ -192,12 +192,17 @@ kbd {
 .about-icon {
   display: inline-flex;
   flex: 0 0 16px;
+  margin-top: 1px;
   color: #6b7280;
 }
 
 .about-icon svg {
   width: 16px;
   height: 16px;
+}
+
+.about-list a {
+  color: inherit;
 }
 
 .about-footer {

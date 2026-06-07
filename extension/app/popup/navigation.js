@@ -10,7 +10,7 @@ for (const button of refs.menuButtons) {
 }
 
 for (const icon of document.querySelectorAll("[data-about-icon]")) {
-  icon.innerHTML = icon.dataset.aboutIcon === "heart" ? iconSet.heart : iconSet.shieldCheck;
+  icon.innerHTML = iconSet[icon.dataset.aboutIcon] ?? "";
 }
 
 for (const button of document.querySelectorAll(".modal-close-btn")) {
