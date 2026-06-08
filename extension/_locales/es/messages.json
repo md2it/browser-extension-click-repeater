@@ -1,4 +1,7 @@
 {
+  "extDescription": {
+    "message": "Graba secuencias de clics en páginas web y repítelas cuando lo necesites."
+  },
   "commandRunDefaultClick": {
     "message": "Run default"
   }

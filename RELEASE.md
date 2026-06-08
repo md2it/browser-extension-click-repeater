@@ -9,6 +9,13 @@ Version logic:
 
 ## RELEASES
 
+### 1.0.3
+- Rebranded from Macros Repeater to Click Repeater
+- Cursor tracker restyled to brand colors with improved UX
+- Reduced click offset radius for more precise targeting
+- Manifest cleanup: removed redundant background script list
+- Localized extension description in manifest for all 7 supported languages
+
 ### 1.0.2
 - Rounded corners on extension icon
 

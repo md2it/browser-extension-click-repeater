@@ -1,4 +1,7 @@
 {
+  "extDescription": {
+    "message": "سجّل تسلسلات النقرات على صفحات الويب وكررها متى شئت."
+  },
   "commandRunDefaultClick": {
     "message": "Run default"
   }

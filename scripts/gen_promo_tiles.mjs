@@ -44,15 +44,18 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-// Cursor: softer stroke — same hue as fill, much lower contrast between them
-function drawCursor(ctx, cx, cy, size = 20, alpha = 1) {
+// Cursor matches extension tracker: fill=white, stroke=#012292, tip at (cx,cy).
+// size=36 matches TRACKER_DEFAULT_SIZE; stroke-width scales with size.
+function drawCursor(ctx, cx, cy, size = 36, alpha = 1) {
   const s = size / 24;
   const ox = cx - 4 * s, oy = cy - 4 * s;
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.fillStyle   = '#ff6060';
-  ctx.strokeStyle = 'rgba(255,140,140,0.55)'; // same hue, light — no harsh dark outline
-  ctx.lineWidth   = 1.0 * (size / 20);
+  ctx.fillStyle   = '#ffffff';
+  ctx.strokeStyle = '#012292';
+  ctx.lineWidth   = Math.max(0.8, 2 * s);
+  ctx.lineJoin    = 'round';
+  ctx.lineCap     = 'round';
   ctx.beginPath();
   ctx.moveTo(ox +  4     * s, oy +  4     * s);
   ctx.lineTo(ox + 11.07  * s, oy + 21     * s);
@@ -63,28 +66,34 @@ function drawCursor(ctx, cx, cy, size = 20, alpha = 1) {
   ctx.restore();
 }
 
-// Stronger ripples: higher alpha, thicker stroke
-function drawRipples(ctx, cx, cy, size) {
+// Ripples match spawnClickRipple(): 5 rings, colors #012292/white alternating.
+// scale=1.0 → real extension pixel sizes (good for 1280×800).
+// Snapshot at t=280ms: rings at various expansion stages.
+function drawRipples(ctx, cx, cy, scale = 1.0) {
+  const colors  = ['#012292', '#ffffff', '#012292', '#ffffff', '#012292'];
+  const capture = 280; // ms
   ctx.save();
-  for (const [r, a, lw] of [
-    [size * 1.5, 0.55, 2.0],
-    [size * 2.3, 0.32, 1.8],
-    [size * 3.2, 0.16, 1.4],
-  ]) {
-    ctx.strokeStyle = `rgba(255,80,80,${a})`;
-    ctx.lineWidth = lw;
+  for (let i = 0; i < colors.length; i++) {
+    const elapsed = Math.max(0, capture - i * 60);
+    if (elapsed === 0) continue;
+    const t  = elapsed / 500;
+    const r  = ((60 + i * 10) * t / 2) * scale;
+    const a  = 0.7 * (1 - t);
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = colors[i];
+    ctx.lineWidth   = Math.max(0.8, 2 * scale);
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
   }
   ctx.restore();
 }
 
-// Stronger ghost traces: 0.38 opacity
+// Ghost traces: semi-transparent cursors along the path between clicks.
 function drawTrace(ctx, p1, p2, spacing, size) {
   const dx = p2.x - p1.x, dy = p2.y - p1.y;
   const n = Math.max(0, Math.round(Math.hypot(dx, dy) / spacing) - 1);
   for (let i = 1; i <= n; i++) {
     const t = i / (n + 1);
-    drawCursor(ctx, p1.x + dx * t, p1.y + dy * t, size, 0.38);
+    drawCursor(ctx, p1.x + dx * t, p1.y + dy * t, size, 0.30);
   }
 }
 
@@ -277,13 +286,14 @@ function drawBrand(ctx, iconImg, cx, cy, iconSize, nameFontSize, textGap) {
 // Each click: { x, y, rs? } — rs scales the ripple radius (default 1.0),
 // varying it per point makes the animation feel "alive".
 
+// cursorSize — pixel size of cursor icon; ripple scale derived from cursorSize/36.
 function drawInteraction(ctx, clicks, cursorSize, traceSpacing) {
   for (let i = 0; i < clicks.length - 1; i++) {
     drawTrace(ctx, clicks[i], clicks[i + 1], traceSpacing, cursorSize);
   }
   for (const c of clicks) {
-    drawRipples(ctx, c.x, c.y, cursorSize * (c.rs ?? 1.0));
-    drawCursor(ctx, c.x, c.y, cursorSize * 1.15);
+    drawRipples(ctx, c.x, c.y, (cursorSize / 36) * (c.rs ?? 1.0));
+    drawCursor(ctx, c.x, c.y, cursorSize * 1.5); // active: ~54/36 ratio
   }
 }
 
@@ -319,10 +329,10 @@ async function genSmall(iconImg, outPath) {
   const sceneW = W - SCENE_X;
   const scx    = SCENE_X + Math.round(sceneW / 2);
 
-  drawAppShell(ctx, SCENE_X + 4, 16, sceneW - 8, H - 32, 30);
+  drawAppShell(ctx, SCENE_X + 4, 16, sceneW - 20, H - 32, 30);
 
-  // Button and select — same width, same horizontal center
-  const elemW = 142, elemCX = scx - 2;
+  // Button and select — centered within the shell (shell center = scx - 6)
+  const elemW = 142, elemCX = scx - 6;
 
   const e1 = { x: elemCX, y: 56, rs: 1.20 };
   drawBtnPrimary(ctx, e1.x, e1.y, elemW, 32, 'New Report', 13);
@@ -360,7 +370,7 @@ async function genLarge(iconImg, outPath) {
   ctx.beginPath(); ctx.moveTo(SCENE_X - 6, 34); ctx.lineTo(SCENE_X - 6, H - 34); ctx.stroke();
 
   const sx = SCENE_X; // 372
-  drawAppShell(ctx, sx + 6, 22, W - sx - 14, H - 44, 40);
+  drawAppShell(ctx, sx + 6, 22, W - sx - 28, H - 44, 40);
 
   // S-curve: top-left → top-right → center → menu → select → menu item
   const e1 = { x: sx + 128, y: 108, rs: 1.00 };

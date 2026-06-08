@@ -1,4 +1,7 @@
 {
+  "extDescription": {
+    "message": "Klicksequenzen auf Webseiten aufzeichnen und beliebig oft wiederholen."
+  },
   "commandRunDefaultClick": {
     "message": "Run default"
   }

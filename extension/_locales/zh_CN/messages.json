@@ -1,4 +1,7 @@
 {
+  "extDescription": {
+    "message": "在网页上录制点击序列，随时重复执行。"
+  },
   "commandRunDefaultClick": {
     "message": "Run default"
   }
