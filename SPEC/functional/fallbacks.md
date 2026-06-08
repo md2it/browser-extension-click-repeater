@@ -2,7 +2,7 @@
 
 ---
 
-## MACRO CANNOT BE EXECUTED
+## CANNOT BE EXECUTED
 
 ### General rules
 - Execution stops
@@ -20,23 +20,23 @@
 - Notification: "Element not found"
 
 ### User stopped execution
-- Reason: the user stopped the macro
-- Notification: "Macro stopped"
+- Reason: the user stopped execution
+- Notification: "Stopped"
 
 ### User started interacting with the page
 - Reason: the user clicked during execution
-- Notification: "Macro stopped by user"
+- Notification: "Stopped by user"
 
 ### No recorded steps
-- Reason: the macro has no steps
-- Notification: "Macro has no steps"
+- Reason: no recorded steps
+- Notification: "No steps"
 
 ### Other reasons
 - The page was closed or reloaded
 - The extension lost access to the page
 - An internal error occurred
-- Any other reason that prevents the macro from completing, including unknown reasons
-- Notification: "Could not execute macro"
+- Any other reason that prevents execution from completing, including unknown reasons
+- Notification: "Could not execute"
 
 ---
 

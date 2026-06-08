@@ -1,4 +1,4 @@
-# MACRO CREATION MODE
+# RECORDING MODE
 
 ---
 
@@ -28,12 +28,12 @@
 - Do not use `stopPropagation`
 - Do not use `preventDefault`
 
-### Ending creation mode
+### Ending recording mode
 - After finishing the clicks, the user clicks the extension icon again to end the mode
-- The popup immediately opens the "Edit macro" window with prefilled steps:
+- The popup immediately opens the "Edit" window with prefilled steps:
    - Name:
       - Prefilled by default as `domain + date + time`, for example `google.com 2026-06-02 19:34`. Exclude http, www, /, etc.
       - The text is selected so the user can immediately enter a custom name
    - Repeat = 1
    - All other values use their defaults
-   - The user can work with this window in the same way as when editing an existing macro
+   - The user can work with this window in the same way as when editing existing clicks

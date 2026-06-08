@@ -1,4 +1,4 @@
-# MACRO EXECUTION MODE
+# EXECUTION MODE
 
 ---
 
@@ -8,10 +8,10 @@
    - Opens the popup
    - Does not start anything
    - Stops the active mode, if one is running
-- Creation mode starts only from the button in the popup
+- Recording mode starts only from the button in the popup
 - Execution mode starts:
-   - From the button for a specific macro in the popup
-   - From the shortcut for the default macro
+   - From the button for a specific entry in the popup
+   - From the shortcut for the default
 
 ---
 
@@ -20,7 +20,7 @@
 ### Execution speed
 
 - Speed is controlled by the extension-wide setting: [Settings - Execution speed](../pages/settings.md#settings-page)
-- The setting applies to all macros
+- The setting applies to all
 - Default value: `1×`
 - The multiplier applies only to one additional pacing delay after each completed step:
    - `0.25×`: 3500 ms
@@ -28,7 +28,7 @@
    - `1×`: 500 ms
    - `2×`: 0 ms
 - All other execution intervals remain unchanged
-- The multiplier controls relative pacing but does not guarantee a proportional change in the macro's total duration
+- The multiplier controls relative pacing but does not guarantee a proportional change in total duration
 
 ### General rules
 - Do not jump the cursor
@@ -37,7 +37,7 @@
 - Add micro-movements
 - Randomize by several millimeters
 - Randomize the target point
-- Offset the click by 1 mm
+- Offset radius of the click by 0.2mm
 - Populate movementX
 - Populate movementY
 - Calculate pauses at runtime
@@ -55,7 +55,7 @@ Loop:
 1. Prepare the target
     1. Find the element or point. Stop if the target is not found
     2. Set the click point
-    3. Offset the click by 1 mm
+    3. Offset radius of the click by 0.2mm
 2. If a path is needed
     1. Calculate the path at runtime
     2. Account for distance

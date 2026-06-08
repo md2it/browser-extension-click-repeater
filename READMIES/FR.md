@@ -1,4 +1,4 @@
-# MACROS REPEATER
+# CLICK REPEATER
 
 =-=-=-=-=-=-=-=-= | [DE](./DE.md) | [EN](../README.md) | [ES](./ES.md) | FR | [RU](./RU.md) | [中文](./ZH.md) | [عربي](./AR.md) | =-=-=-=-=-=-=-=-=
 
@@ -14,19 +14,19 @@ Chargez l'intégralité du répertoire [`extension`](../extension) comme extensi
 
 ## DESCRIPTION
 
-Macros Repeater enregistre les clics effectués sur une page web et les répète ultérieurement.
+Click Repeater enregistre les clics effectués sur une page web et les répète ultérieurement.
 
-Créez une macro, configurez son exécution et lancez-la depuis la fenêtre de l'extension ou avec un raccourci clavier. Les macros peuvent utiliser des coordonnées enregistrées ou des éléments de la page.
+Enregistrez des clics une fois, configurez leur exécution et lancez-les depuis la fenêtre de l'extension ou avec un raccourci clavier. Les clics peuvent utiliser des coordonnées enregistrées ou des éléments de la page.
 
 ## FONCTIONNALITÉS PRINCIPALES
 
 - Enregistrer des séquences de clics sur des pages web
-- Exécuter les macros en mode Position ou Élément
+- Exécuter en mode Position ou Élément
 - Exécution visible ou invisible
-- Répéter une macro complète jusqu'à 999 fois
+- Répéter jusqu'à 999 fois
 - Quatre vitesses d'exécution
-- Définir une macro par défaut et la lancer avec un raccourci
-- Modifier, supprimer et réorganiser les macros enregistrées
+- Définir une option par défaut et la lancer avec un raccourci
+- Modifier, supprimer et réorganiser les clics enregistrés
 - Thèmes clair et sombre
 
 ## CONFIDENTIALITÉ
@@ -34,7 +34,7 @@ Créez une macro, configurez son exécution et lancez-la depuis la fenêtre de l
 - Aucune collecte de données
 - Aucun suivi
 - Aucune requête réseau
-- Les macros et les paramètres sont enregistrés localement dans le navigateur
+- Les clics et les paramètres sont enregistrés localement dans le navigateur
 
 ## LANGUES DE L'INTERFACE
 
@@ -48,21 +48,21 @@ Créez une macro, configurez son exécution et lancez-la depuis la fenêtre de l
 
 ## UTILISATION
 
-### Créer une macro
+### Enregistrer des clics
 
 1. Ouvrez la fenêtre de l'extension
-2. Lancez la création d'une macro
+2. Lancez l'enregistrement
 3. Cliquez sur les points ou les éléments nécessaires de la page
 4. Cliquez à nouveau sur l'icône de l'extension
-5. Nommez et configurez la macro, puis enregistrez-la
+5. Nommez et configurez les clics, puis enregistrez-les
 
-### Exécuter une macro
+### Exécuter les clics
 
 1. Ouvrez la fenêtre de l'extension
-2. Lancez la macro souhaitée
+2. Lancez les clics souhaités
 3. L'extension répète les clics enregistrés et indique le résultat
 
-Un clic de l'utilisateur ou `Esc` arrête l'exécution. La macro par défaut peut également être lancée avec `Ctrl+Shift+X` → `M` ou, sur Mac, `Cmd+Shift+X` → `M`.
+Un clic de l'utilisateur ou `Esc` arrête l'exécution. L'option par défaut peut également être lancée avec `Ctrl+Shift+X` → `M` ou, sur Mac, `Cmd+Shift+X` → `M`.
 
 Consultez [tous les parcours utilisateur](../SPEC/user-path.md) pour plus de détails.
 
@@ -71,7 +71,7 @@ Consultez [tous les parcours utilisateur](../SPEC/user-path.md) pour plus de dé
 - Les extensions ne fonctionnent pas sur les pages système du navigateur ni sur les sites web protégés
 - Le mode Élément nécessite que les éléments enregistrés soient toujours présents sur la page
 - Le mode Position nécessite que le contenu concerné reste aux coordonnées enregistrées
-- Les modifications d'un site web peuvent empêcher l'exécution complète d'une ancienne macro
+- Les modifications d'un site web peuvent empêcher l'exécution complète d'anciens clics enregistrés
 - L'extension enregistre et répète uniquement les clics
 - Les clics simulés peuvent être détectés par les sites web même en mode Stealth — les événements générés par le navigateur ne portent pas l'indicateur `isTrusted: true` propre aux interactions utilisateur réelles ; les sites qui vérifient `event.isTrusted` détecteront l'automatisation quelle que soit la méthode utilisée pour déclencher le clic
 

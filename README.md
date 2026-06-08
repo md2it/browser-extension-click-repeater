@@ -1,4 +1,4 @@
-# MACROS REPEATER
+# CLICK REPEATER
 
 =-=-=-=-=-=-=-=-= | [DE](./READMIES/DE.md) | EN | [ES](./READMIES/ES.md) | [FR](./READMIES/FR.md) | [RU](./READMIES/RU.md) | [中文](./READMIES/ZH.md) | [عربي](./READMIES/AR.md) | =-=-=-=-=-=-=-=-=
 
@@ -14,19 +14,19 @@ Load the entire [`extension`](./extension) directory as an unpacked extension.
 
 ## DESCRIPTION
 
-Macros Repeater records clicks on a web page and repeats them later.
+Click Repeater records clicks on a web page and repeats them later.
 
-Create a macro once, configure how it should run, and launch it from the extension popup or with a keyboard shortcut. Macros can target recorded coordinates or page elements.
+Create a click sequence once, configure how it should run, and launch it from the extension popup or with a keyboard shortcut. Clicks can target recorded coordinates or page elements.
 
 ## KEY FEATURES
 
 - Record click sequences on web pages
-- Run macros in Position or Element mode
+- Run clicks in Position or Element mode
 - Visible and Stealth execution
-- Repeat a complete macro up to 999 times
+- Repeat up to 999 times
 - Four execution speed settings
-- Set one macro as default and launch it with a shortcut
-- Edit, delete, and reorder saved macros
+- Set one as default and launch it with a shortcut
+- Edit, delete, and reorder saved clicks
 - Light and dark themes
 
 ## PRIVACY
@@ -34,7 +34,7 @@ Create a macro once, configure how it should run, and launch it from the extensi
 - No data collection
 - No tracking
 - No network requests
-- Macros and settings are stored locally in the browser
+- Clicks and settings are stored locally in the browser
 
 ## INTERFACE LANGUAGES
 
@@ -48,21 +48,21 @@ Create a macro once, configure how it should run, and launch it from the extensi
 
 ## USAGE
 
-### Create a macro
+### Record clicks
 
 1. Open the extension popup
-2. Start macro creation
+2. Start recording
 3. Click the required points or elements on the page
 4. Click the extension icon again
-5. Name and configure the macro, then save it
+5. Name and configure, then save
 
-### Run a macro
+### Run clicks
 
 1. Open the extension popup
-2. Start the required macro
+2. Start the required clicks
 3. The extension repeats the recorded clicks and reports the result
 
-A user click or `Esc` stops execution. A default macro can also be launched with `Ctrl+Shift+X` → `M` or, on Mac, `Cmd+Shift+X` → `M`.
+A user click or `Esc` stops execution. The default can also be launched with `Ctrl+Shift+X` → `M` or, on Mac, `Cmd+Shift+X` → `M`.
 
 See [all user paths](./SPEC/user-path.md) for more details.
 
@@ -71,7 +71,7 @@ See [all user paths](./SPEC/user-path.md) for more details.
 - Browser extensions cannot operate on browser system pages or protected websites
 - Element mode depends on recorded elements remaining available on the page
 - Position mode depends on the relevant content remaining at the recorded coordinates
-- Website changes may prevent an older macro from completing
+- Website changes may prevent older saved clicks from completing
 - The extension records and repeats clicks only
 - Simulated clicks may be detected by websites even in Stealth mode — browser-generated events lack the `isTrusted: true` flag that real user interactions carry; sites that check `event.isTrusted` will see through the automation regardless of how the click is dispatched
 

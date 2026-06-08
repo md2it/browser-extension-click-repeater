@@ -1,7 +1,7 @@
 
 const EXECUTION_SPEED_TEMPO_DELAYS_MS = { 0.25: 3500, 0.5: 1500, 1: 500, 2: 0 };
 
-const HUMAN_MM_IN_PX = 4;
+const HUMAN_MM_IN_PX = 0.75; // 0.2mm offset radius at 96 DPI
 const HUMAN_STEP_MIN_DELAY_MS = 500;
 const HUMAN_STEP_MAX_DELAY_MS = 1000;
 const HUMAN_MOVE_MIN_DELAY_MS = 8;

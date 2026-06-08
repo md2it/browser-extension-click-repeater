@@ -1,6 +1,6 @@
-# DEFAULT MACRO
+# DEFAULT
 
 - Button with a Lucide star icon
-- Available both on the MACROSES page and in the edit card
-- Only one macro can be the default at a time
-- The shortcut launches the default macro
+- Available both on the CLICKS page and in the edit card
+- Only one entry can be the default at a time
+- The shortcut launches the default

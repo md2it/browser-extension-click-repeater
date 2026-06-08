@@ -7,14 +7,14 @@
 - Follow the `element-deleter` logic
 - Reuse `../lib/our/page-operability`
 - Check the active tab when the extension icon is clicked and when launch is requested by shortcut
-- Check again immediately before creating or executing a macro
+- Check again immediately before recording or executing
 - A check failure, content-script injection failure, or communication failure means the page is unavailable
 - State is determined separately for each tab and is not cached after navigation to another page
 
 ## UNAVAILABLE PAGE
 
 - The standard popup does not open
-- Macro creation and execution do not start
+- Recording and execution do not start
 - A separate notification popup opens:
    - "Browser extensions do not work on system pages or protected websites. Try another website"
 - Reuse the text and translations from `element-deleter`
@@ -26,4 +26,4 @@
 ## AVAILABLE PAGE
 
 - The standard popup opens
-- Macro creation and execution work without a warning
+- Recording and execution work without a warning

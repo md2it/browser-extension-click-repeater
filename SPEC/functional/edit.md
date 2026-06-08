@@ -1,4 +1,4 @@
-# EDITING MACROS
+# EDITING
 
 ## IN A SEPARATE WINDOW
 
@@ -42,7 +42,7 @@
 - Save and Cancel button actions
 - Click outside the window
 
-## IN THE MACROSES LIST
+## IN THE CLICKS LIST
 
 - Buttons and fields that duplicate edit-window behavior work in the same way
 - A separate delete action is available

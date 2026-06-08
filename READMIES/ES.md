@@ -1,4 +1,4 @@
-# MACROS REPEATER
+# CLICK REPEATER
 
 =-=-=-=-=-=-=-=-= | [DE](./DE.md) | [EN](../README.md) | ES | [FR](./FR.md) | [RU](./RU.md) | [中文](./ZH.md) | [عربي](./AR.md) | =-=-=-=-=-=-=-=-=
 
@@ -14,19 +14,19 @@ Carga el directorio completo [`extension`](../extension) como una extensión des
 
 ## DESCRIPCIÓN
 
-Macros Repeater graba clics en una página web y los repite posteriormente.
+Click Repeater graba clics en una página web y los repite posteriormente.
 
-Crea una macro, configura cómo debe ejecutarse e iníciala desde la ventana de la extensión o con un atajo de teclado. Las macros pueden usar coordenadas grabadas o elementos de la página.
+Graba los clics una vez, configura cómo deben ejecutarse e inícielos desde la ventana de la extensión o con un atajo de teclado. Los clics pueden usar coordenadas grabadas o elementos de la página.
 
 ## FUNCIONES PRINCIPALES
 
 - Grabar secuencias de clics en páginas web
-- Ejecutar macros en modo Posición o Elemento
+- Ejecutar en modo Posición o Elemento
 - Ejecución visible o invisible
-- Repetir una macro completa hasta 999 veces
+- Repetir hasta 999 veces
 - Cuatro velocidades de ejecución
-- Definir una macro predeterminada e iniciarla con un atajo
-- Editar, eliminar y ordenar las macros guardadas
+- Definir una opción predeterminada e iniciarla con un atajo
+- Editar, eliminar y ordenar los clics guardados
 - Temas claro y oscuro
 
 ## PRIVACIDAD
@@ -34,7 +34,7 @@ Crea una macro, configura cómo debe ejecutarse e iníciala desde la ventana de 
 - No se recopilan datos
 - Sin seguimiento
 - Sin solicitudes de red
-- Las macros y los ajustes se guardan localmente en el navegador
+- Los clics y los ajustes se guardan localmente en el navegador
 
 ## IDIOMAS DE LA INTERFAZ
 
@@ -48,21 +48,21 @@ Crea una macro, configura cómo debe ejecutarse e iníciala desde la ventana de 
 
 ## USO
 
-### Crear una macro
+### Grabar clics
 
 1. Abre la ventana de la extensión
-2. Inicia la creación de una macro
+2. Inicia la grabación
 3. Haz clic en los puntos o elementos necesarios de la página
 4. Vuelve a hacer clic en el icono de la extensión
-5. Asigna un nombre, configura la macro y guárdala
+5. Asigna un nombre, configura los clics y guárdalos
 
-### Ejecutar una macro
+### Ejecutar clics
 
 1. Abre la ventana de la extensión
-2. Inicia la macro necesaria
+2. Inicia los clics necesarios
 3. La extensión repite los clics grabados e informa del resultado
 
-Un clic del usuario o `Esc` detiene la ejecución. La macro predeterminada también puede iniciarse con `Ctrl+Shift+X` → `M` o, en Mac, `Cmd+Shift+X` → `M`.
+Un clic del usuario o `Esc` detiene la ejecución. La opción predeterminada también puede iniciarse con `Ctrl+Shift+X` → `M` o, en Mac, `Cmd+Shift+X` → `M`.
 
 Consulta [todas las rutas de usuario](../SPEC/user-path.md) para obtener más información.
 
@@ -71,7 +71,7 @@ Consulta [todas las rutas de usuario](../SPEC/user-path.md) para obtener más in
 - Las extensiones no funcionan en páginas del sistema del navegador ni en sitios web protegidos
 - El modo Elemento requiere que los elementos grabados sigan disponibles en la página
 - El modo Posición requiere que el contenido correspondiente permanezca en las coordenadas grabadas
-- Los cambios en un sitio web pueden impedir que una macro antigua se complete
+- Los cambios en un sitio web pueden impedir que los clics guardados más antiguos se completen
 - La extensión solo graba y repite clics
 - Los clics simulados pueden ser detectados por los sitios web incluso en modo Stealth — los eventos generados por el navegador no tienen el indicador `isTrusted: true` que llevan las interacciones reales del usuario; los sitios que comprueban `event.isTrusted` detectarán la automatización independientemente de cómo se envíe el clic
 

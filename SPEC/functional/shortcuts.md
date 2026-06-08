@@ -9,7 +9,7 @@
 2. The user releases the keys
 3. A badge with a prompt appears
 4. The user presses `M` within 3 seconds. After 3 seconds, the timeout expires and the badge resets
-5. The default macro starts, if one is assigned
+5. The default starts, if one is assigned
 
 ---
 

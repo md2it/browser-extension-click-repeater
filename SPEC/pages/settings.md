@@ -17,10 +17,10 @@
 		- `1×`
 		- `2×`
 	- Default value: `1×`
-	- This is an extension-wide setting and applies to all macros
+	- This is an extension-wide setting and applies to all
 	- The setting affects only the additional pacing delay between steps and does not change existing execution intervals
-	- Specific intervals and their application order: [Macro execution mode](../functional/execute-macros.md#execution-speed)
-- "Skip explanations for new macros"
+	- Specific intervals and their application order: [Execution mode](../functional/execute.md#execution-speed)
+- "Skip explanations for new recordings"
 	- Toggler
 	- Default: off
 - "Skip explanations for Visible / Stealth setting"
