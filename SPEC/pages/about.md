@@ -11,6 +11,6 @@
 - (gauge) Execution speed: 0.25×, 0.5×, 1×, 2×
 - (star) "Default" clicks can be launched with a shortcut
 - (shield-check) Doesn't use the network
-- (git-fork) Code on GitHub // [https://github.com/md2it/browser-extension-macros-repeater](https://github.com/md2it/browser-extension-macros-repeater)
+- (git-fork) Code on GitHub // [https://github.com/md2it/browser-extension-click-repeater](https://github.com/md2it/browser-extension-click-repeater)
 - (heart) Credits (MIT): [Lucide](https://github.com/lucide-icons/lucide)
 - Standard mini-footer at the bottom below a divider

@@ -1,5 +1,5 @@
-const STORAGE_KEY = "macros_list";
-const DEFAULT_CLICK_ID_KEY = "default_macro_id";
+const STORAGE_KEY = "clicks_list";
+const DEFAULT_CLICK_ID_KEY = "default_click_id";
 const SETTINGS_KEY = "popup_settings";
 const clicks = [];
 let defaultClickId = null;

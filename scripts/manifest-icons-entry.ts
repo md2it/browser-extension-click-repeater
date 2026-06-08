@@ -6,7 +6,7 @@ declare const OffscreenCanvas: new (w: number, h: number) => {
 declare const Path2D: new (d: string) => any;
 
 const CATALOG_ROOT: string = (process.env as any).CATALOG_ROOT;
-const ICON_SVG_PATH = join(CATALOG_ROOT, "lib/icons/extension-logos/macros-repeater/icon.svg");
+const ICON_SVG_PATH = join(CATALOG_ROOT, "lib/icons/extension-logos/click-repeater/icon.svg");
 
 const SIZES = [16, 32, 48, 128];
 const BG = "#012292";

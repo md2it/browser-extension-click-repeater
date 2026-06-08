@@ -15,7 +15,7 @@
 - White buttons (all other `icon-btn`, `btn`):
    - White/transparent background; dark gray `#4f5570` icons and text
 - Exceptions that intentionally differ:
-   - Active default-macro star: filled yellow `#ffc400` icon
+   - Active default-click star: filled yellow `#ffc400` icon
    - Expanded delete button: red `#c83232` background; white text and icon
 
 ## Tooltips
