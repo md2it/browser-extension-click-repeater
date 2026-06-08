@@ -36,7 +36,7 @@ function renderLanguageSelector() {
 function syncPopupLocale() {
   applyTranslations();
   const menuKeys = {
-    clicks: "navMacros",
+    clicks: "navClicks",
     settings: "navSettings",
     shortcuts: "navShortcuts",
     about: "navAbout"
@@ -46,7 +46,7 @@ function syncPopupLocale() {
     button.dataset.tooltip = label;
     button.setAttribute("aria-label", label);
   }
-  refs.list.setAttribute("aria-label", t("macrosList"));
+  refs.list.setAttribute("aria-label", t("clicksList"));
   refs.languageSelector.setAttribute("aria-label", t("language"));
   renderLanguageSelector();
   setEditDisplayMoves(refs.editDisplayMoves.checked);

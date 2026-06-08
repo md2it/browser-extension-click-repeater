@@ -21,7 +21,7 @@
 
       <div class="popup-content">
         <section class="popup-page popup" data-page-content="clicks">
-          <button id="record-btn" class="btn btn-primary" type="button" data-i18n="newMacro">RECORD</button>
+          <button id="record-btn" class="btn btn-primary" type="button" data-i18n="recordBtn">RECORD</button>
 
           <p id="status-line" class="status-line" role="status" aria-live="polite"></p>
 
@@ -45,7 +45,7 @@
               <button id="setting-execution-speed" class="speed-cycle-btn" type="button"></button>
             </div>
             <label class="settings-row" for="setting-skip-new-recording">
-              <span class="settings-row-label" data-i18n="skipNewMacro">Skip explanations for new recordings</span>
+              <span class="settings-row-label" data-i18n="skipRecording">Skip explanations for new recordings</span>
               <span class="settings-toggle-wrap">
                 <input type="checkbox" id="setting-skip-new-recording" class="visually-hidden" />
                 <span class="toggle-switch-visual" aria-hidden="true"></span>
@@ -129,7 +129,7 @@
     <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
       <div class="modal">
         <div class="modal-header">
-          <h3 id="edit-modal-title" data-i18n="editMacroTitle">Edit</h3>
+          <h3 id="edit-modal-title" data-i18n="editTitle">Edit</h3>
           <button id="close-edit-btn" class="modal-close-btn" type="button" data-i18n-title="close"></button>
         </div>
 
@@ -177,10 +177,10 @@
     <div id="record-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="record-modal-title">
       <div class="modal">
         <div class="modal-header">
-          <h3 id="record-modal-title" data-i18n="newMacroTitle">Record clicks</h3>
+          <h3 id="record-modal-title" data-i18n="recordTitle">Record clicks</h3>
           <button id="close-record-modal-btn" class="modal-close-btn" type="button" data-i18n-title="close"></button>
         </div>
-        <p class="modal-description" data-i18n="newMacroDescription"></p>
+        <p class="modal-description" data-i18n="recordDescription"></p>
         <label class="dont-show-row" for="record-dont-show">
           <input type="checkbox" id="record-dont-show" class="visually-hidden" />
           <span class="toggle-switch-visual" aria-hidden="true"></span>

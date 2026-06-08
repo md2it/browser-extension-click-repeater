@@ -43,7 +43,7 @@
   ],
   "commands": {
     "clicks-prefix": {
-      "description": "__MSG_commandRunDefaultMacro__"
+      "description": "__MSG_commandRunDefaultClick__"
     }
   },
   "content_scripts": [

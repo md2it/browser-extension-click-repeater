@@ -11,7 +11,7 @@ const CONTEXT_MENU_EMOJI = {
 };
 
 const CONTEXT_MENU_NAV_KEYS = {
-  clicks: "navMacros",
+  clicks: "navClicks",
   settings: "navSettings",
   shortcuts: "navShortcuts",
   about: "navAbout",

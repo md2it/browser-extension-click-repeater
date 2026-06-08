@@ -183,12 +183,12 @@ async function cleanupLegacyTrackMovesSetting() {
 async function setDefaultClick(macroId, enabled = true) {
   const macro = clicks.find((item) => item.id === macroId);
   if (!macro) {
-    setStatus(t("macroNotFound"));
+    setStatus(t("notFound"));
     return;
   }
 
   defaultClickId = enabled ? macroId : null;
   await persistDefaultClickId();
   render();
-  setStatus(enabled ? t("defaultMacroSet", { name: macro.name }) : t("defaultMacroUnset"));
+  setStatus(enabled ? t("defaultSet", { name: macro.name }) : t("defaultUnset"));
 }

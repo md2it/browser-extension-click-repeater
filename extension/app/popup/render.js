@@ -20,7 +20,7 @@ function render() {
     const modeIcon = (macro.mode ?? "position") === "element" ? iconSet.code : iconSet.crosshair;
     const modeTitle = t((macro.mode ?? "position") === "element" ? "modeElement" : "modePosition");
     const isDefault = macro.id === defaultClickId;
-    const defaultTitle = t(isDefault ? "defaultMacro" : "makeDefault");
+    const defaultTitle = t(isDefault ? "defaultLabel" : "makeDefault");
     const defaultDetail = t(isDefault ? "worksByShortcut" : "enableShortcut");
     const row = document.createElement("li");
     row.className = "click-item";
@@ -115,7 +115,7 @@ async function deleteClick(macroId) {
   const index = clicks.findIndex((item) => item.id === macroId);
   if (index < 0) {
     clearDeleteConfirmation();
-    setStatus(t("macroNotFound"));
+    setStatus(t("notFound"));
     return;
   }
 
@@ -128,20 +128,20 @@ async function deleteClick(macroId) {
   clearDeleteConfirmation();
   await persistClicks();
   render();
-  setStatus(t("macroDeleted"));
+  setStatus(t("deleted"));
 }
 
 function openEditModal(macroId, { selectAll = false } = {}) {
   if (macroId !== null) {
     const macro = clicks.find((item) => item.id === macroId);
     if (!macro) {
-      setStatus(t("macroNotFound"));
+      setStatus(t("notFound"));
       return;
     }
 
     state.modalMode = "edit";
     state.editClickId = macro.id;
-    refs.editModalTitle.textContent = t("editMacroTitle");
+    refs.editModalTitle.textContent = t("editTitle");
     refs.editName.value = macro.name;
     refs.editRepeats.value = String(macro.repeats ?? 1);
     setEditDisplayMoves(getDisplayMovesValue(macro));
@@ -160,7 +160,7 @@ function openEditModal(macroId, { selectAll = false } = {}) {
 
   state.modalMode = "create";
   state.editClickId = null;
-  refs.editModalTitle.textContent = t("createMacroTitle");
+  refs.editModalTitle.textContent = t("createTitle");
   refs.editName.value = buildDefaultClickName();
   refs.editRepeats.value = "1";
   setEditDisplayMoves(true);
@@ -190,7 +190,7 @@ function validateEditName() {
   refs.editNameField.classList.toggle("invalid", !isValid);
   if (!isValid) {
     refs.editName.focus();
-    setStatus(t("enterMacroName"));
+    setStatus(t("enterName"));
   }
   return isValid;
 }

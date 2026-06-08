@@ -153,7 +153,7 @@ refs.list.addEventListener("click", (event) => {
   if (action === "toggle-display-moves") {
     const macro = clicks.find((item) => item.id === macroId);
     if (!macro) {
-      setStatus(t("macroNotFound"));
+      setStatus(t("notFound"));
       return;
     }
 
@@ -197,7 +197,7 @@ refs.list.addEventListener("change", (event) => {
 
   const macro = clicks.find((item) => item.id === input.dataset.id);
   if (!macro) {
-    setStatus(t("macroNotFound"));
+    setStatus(t("notFound"));
     return;
   }
 
@@ -266,7 +266,7 @@ refs.saveEditBtn.addEventListener("click", async () => {
   if (state.modalMode === "edit" && state.editClickId) {
     const macro = clicks.find((item) => item.id === state.editClickId);
     if (!macro) {
-      setStatus(t("macroNotFoundForSave"));
+      setStatus(t("notFoundForSave"));
       closeEditModal();
       return;
     }
@@ -287,7 +287,7 @@ refs.saveEditBtn.addEventListener("click", async () => {
     }
     closeEditModal();
     render();
-    setStatus(t("macroUpdated"));
+    setStatus(t("updated"));
     return;
   }
 
@@ -313,7 +313,7 @@ refs.saveEditBtn.addEventListener("click", async () => {
   }
   closeEditModal();
   render();
-  setStatus(t("macroSaved"));
+  setStatus(t("saved"));
 });
 
 refs.cancelEditBtn.addEventListener("click", () => {

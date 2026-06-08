@@ -78,21 +78,21 @@ function describeExecutionEvent(event) {
     return null;
   }
 
-  const name = event.macroName || t("macroNoun");
+  const name = event.clickName || t("clickNoun");
   switch (event.kind) {
     case "completed":
       return { text: t("executionCompleted", { name }), error: false };
     case "stopped":
-      return { text: t("macroStopped"), error: true };
+      return { text: t("stopped"), error: true };
     case "user-click":
-      return { text: t("macroStoppedByUser"), error: true };
+      return { text: t("stoppedByUser"), error: true };
     case "element-not-found":
       return {
         text: t("elementNotFound"),
         error: true
       };
     case "empty-steps":
-      return { text: t("macroHasNoSteps"), error: true };
+      return { text: t("hasNoSteps"), error: true };
     case "failed":
       return { text: t("executionFailed"), error: true };
     default:
@@ -103,7 +103,7 @@ function describeExecutionEvent(event) {
 async function startExecution(macroId) {
   const macro = clicks.find((item) => item.id === macroId);
   if (!macro) {
-    setStatus(t("macroNotFound"));
+    setStatus(t("notFound"));
     return;
   }
 
@@ -126,7 +126,7 @@ async function startExecution(macroId) {
       .filter((step) => step && step.trim())
     : [];
   if (steps.length === 0) {
-    setStatus(t("macroHasNoSteps"), { error: true });
+    setStatus(t("hasNoSteps"), { error: true });
     return;
   }
 
@@ -144,12 +144,12 @@ async function startExecution(macroId) {
   if (!response?.ok) {
     if (response?.error === "already_running") {
       renderExecutionStatus(response.state);
-      setStatus(t("alreadyRunning", { name: response.state?.macroName ?? t("macroNoun") }));
+      setStatus(t("alreadyRunning", { name: response.state?.clickName ?? t("clickNoun") }));
       return;
     }
 
     if (response?.error === "empty_steps") {
-      setStatus(t("macroHasNoSteps"), { error: true });
+      setStatus(t("hasNoSteps"), { error: true });
       return;
     }
 
@@ -183,7 +183,7 @@ async function stopExecution() {
   clearExecutionPolling();
   refs.stopExecutionBtn.classList.add("hidden");
   if (response.wasRunning) {
-    setStatus(t("macroStopped"), { error: true });
+    setStatus(t("stopped"), { error: true });
   } else {
     setStatus(t("noActiveExecution"));
   }
