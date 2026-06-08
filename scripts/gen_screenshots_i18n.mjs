@@ -15,7 +15,7 @@ const OUT_DIR = path.resolve(__dirname, '../PUBLICATION/screenshots');
 
 const W = 1280, H = 800;
 
-// Per-locale config: storage locale key, translated macro names, md2it URL
+// Per-locale config: storage locale key, translated click names, md2it URL
 const LOCALE_CONFIGS = [
   {
     code: 'ES',
@@ -67,12 +67,12 @@ const LOCALE_CONFIGS = [
   },
 ];
 
-const MOCK_DEFAULT_ID = 'macro-001';
+const MOCK_DEFAULT_ID = 'click-001';
 
 function buildClicks(customTitle, firstClick) {
   return [
     {
-      id: 'macro-001',
+      id: 'click-001',
       name: 'md2it.com 2026-06-07 15:55',
       repeats: 1,
       displayMoves: true,
@@ -81,7 +81,7 @@ function buildClicks(customTitle, firstClick) {
       steps: [{ position: '320,240' }]
     },
     {
-      id: 'macro-002',
+      id: 'click-002',
       name: customTitle,
       repeats: 3,
       displayMoves: false,
@@ -90,7 +90,7 @@ function buildClicks(customTitle, firstClick) {
       steps: [{ position: '100,100' }]
     },
     {
-      id: 'macro-003',
+      id: 'click-003',
       name: 'google.com 2026-06-07 15:53',
       repeats: 1,
       displayMoves: true,
@@ -99,7 +99,7 @@ function buildClicks(customTitle, firstClick) {
       steps: [{ selector: 'button.search' }]
     },
     {
-      id: 'macro-004',
+      id: 'click-004',
       name: firstClick,
       repeats: 1,
       displayMoves: true,
@@ -110,11 +110,11 @@ function buildClicks(customTitle, firstClick) {
   ];
 }
 
-function buildInitScript(macros, defaultId, settings, locale) {
+function buildInitScript(clicks, defaultId, settings, locale) {
   return `
     (() => {
       const STORAGE = {
-        macros_list: ${JSON.stringify(macros)},
+        macros_list: ${JSON.stringify(clicks)},
         default_macro_id: ${JSON.stringify(defaultId)},
         popup_settings: ${JSON.stringify(settings)},
         locale: ${JSON.stringify(locale)}
@@ -396,7 +396,7 @@ async function main() {
 
   for (const cfg of LOCALE_CONFIGS) {
     console.log(`\n── ${cfg.code} ──────────────────────────────────────`);
-    const macros = buildMacros(cfg.customTitle, cfg.firstClick);
+    const clicks = buildClicks(cfg.customTitle, cfg.firstClick);
     const settingsLight = { ...settingsBase, darkTheme: false };
     const settingsDark  = { ...settingsBase, darkTheme: true };
     const locale = cfg.storageLocale;
@@ -406,7 +406,7 @@ async function main() {
     async function renderPopup(settings, pageParam) {
       const ctx = await browser.newContext();
       const page = await ctx.newPage();
-      await page.addInitScript(buildInitScript(macros, MOCK_DEFAULT_ID, settings, locale));
+      await page.addInitScript(buildInitScript(clicks, MOCK_DEFAULT_ID, settings, locale));
       const url = pageParam ? `${popupUrl}?page=${pageParam}` : popupUrl;
       await page.goto(url, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(400);
@@ -417,15 +417,15 @@ async function main() {
 
     // -1: light
     console.log(`  ${cfg.code}-1 (light)…`);
-    const lightMacros    = await renderPopup(settingsLight, null);
+    const lightList    = await renderPopup(settingsLight, null);
     const lightSettings  = await renderPopup(settingsLight, 'settings');
-    await compose(lightMacros, lightSettings, path.join(OUT_DIR, `${cfg.code}-1.png`), false);
+    await compose(lightList, lightSettings, path.join(OUT_DIR, `${cfg.code}-1.png`), false);
 
     // -2: dark
     console.log(`  ${cfg.code}-2 (dark)…`);
-    const darkMacros    = await renderPopup(settingsDark, null);
+    const darkList    = await renderPopup(settingsDark, null);
     const darkSettings  = await renderPopup(settingsDark, 'settings');
-    await compose(darkMacros, darkSettings, path.join(OUT_DIR, `${cfg.code}-2.png`), true);
+    await compose(darkList, darkSettings, path.join(OUT_DIR, `${cfg.code}-2.png`), true);
 
     await browser.close();
 
