@@ -1,14 +1,14 @@
 const STORAGE_KEY = "macros_list";
 const DEFAULT_MACRO_ID_KEY = "default_macro_id";
 const SETTINGS_KEY = "popup_settings";
-const macros = [];
-let defaultMacroId = null;
+const clicks = [];
+let defaultClickId = null;
 
 const EXECUTION_SPEED_VALUES = [0.25, 0.5, 1, 2];
 
 const settings = {
   executionSpeed: 1,
-  skipNewMacroExplanation: false,
+  skipNewClickExplanation: false,
   skipDisplayMovesExplanation: false,
   skipModeExplanation: false,
   darkTheme: false
@@ -16,9 +16,9 @@ const settings = {
 
 const state = {
   modalMode: null,
-  editMacroId: null,
+  editClickId: null,
   editMode: "position",
-  pendingDeleteMacroId: null,
+  pendingDeleteClickId: null,
   executionPollTimer: null
 };
 
@@ -27,10 +27,10 @@ const refs = {
   menu: document.querySelector(".popup-menu"),
   menuButtons: document.querySelectorAll(".popup-menu-btn"),
   pages: document.querySelectorAll("[data-page-content]"),
-  list: document.getElementById("macros-list"),
+  list: document.getElementById("clicks-list"),
   status: document.getElementById("status-line"),
   stopExecutionBtn: document.getElementById("stop-execution-btn"),
-  newMacroBtn: document.getElementById("new-macro-btn"),
+  recordBtn: document.getElementById("record-btn"),
   editModal: document.getElementById("edit-modal"),
   editModalTitle: document.getElementById("edit-modal-title"),
   closeEditBtn: document.getElementById("close-edit-btn"),
@@ -51,11 +51,11 @@ const refs = {
   editModeLabel: document.getElementById("edit-mode-label"),
   saveEditBtn: document.getElementById("save-edit-btn"),
   cancelEditBtn: document.getElementById("cancel-edit-btn"),
-  newMacroModal: document.getElementById("new-macro-modal"),
-  closeNewMacroModalBtn: document.getElementById("close-new-macro-modal-btn"),
-  newMacroDontShow: document.getElementById("new-macro-dont-show"),
-  newMacroStartBtn: document.getElementById("new-macro-start-btn"),
-  newMacroCancelBtn: document.getElementById("new-macro-cancel-btn"),
+  recordModal: document.getElementById("record-modal"),
+  closeRecordModalBtn: document.getElementById("close-record-modal-btn"),
+  recordDontShow: document.getElementById("record-dont-show"),
+  recordStartBtn: document.getElementById("record-start-btn"),
+  recordCancelBtn: document.getElementById("record-cancel-btn"),
   displayMovesModal: document.getElementById("display-moves-modal"),
   closeDisplayMovesModalBtn: document.getElementById("close-display-moves-modal-btn"),
   displayMovesDontShow: document.getElementById("display-moves-dont-show"),
@@ -68,10 +68,10 @@ const refs = {
   modeElementBtn: document.getElementById("mode-element-btn"),
   settingExecutionSpeed: document.getElementById("setting-execution-speed"),
   languageSelector: document.getElementById("language-selector"),
-  settingSkipNewMacro: document.getElementById("setting-skip-new-macro"),
+  settingSkipNewRecording: document.getElementById("setting-skip-new-recording"),
   settingSkipDisplayMoves: document.getElementById("setting-skip-display-moves"),
   settingSkipMode: document.getElementById("setting-skip-mode"),
   settingDarkTheme: document.getElementById("setting-dark-theme")
 };
 
-const iconSet = globalThis.macrosRepeaterLucideIcons;
+const iconSet = globalThis.clickRepeaterLucideIcons;

@@ -69,7 +69,7 @@ body {
   color: #fff;
 }
 
-.macros-list {
+.clicks-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -78,13 +78,13 @@ body {
   gap: 8px;
 }
 
-.macro-item {
+.click-item {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.macro-row {
+.click-row {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -98,31 +98,31 @@ body {
   box-shadow: 0 0 5px rgba(19, 25, 48, 0.07);
 }
 
-.macro-row button {
+.click-row button {
   transition:
     transform 120ms ease,
     box-shadow 120ms ease;
 }
 
-.macro-row button:hover {
+.click-row button:hover {
   transform: translateY(-1px) scale(1.025);
   box-shadow:
     0 0 6px rgba(19, 25, 48, 0.12),
     inset 0 0 1px rgba(255, 255, 255, 0.55);
 }
 
-.macro-row .run-btn {
+.click-row .run-btn {
   border-color: #012292;
   color: #fff;
   background: #012292;
   box-shadow: none;
 }
 
-.macro-row .run-btn:hover {
+.click-row .run-btn:hover {
   box-shadow: none;
 }
 
-.macro-row .delete-btn {
+.click-row .delete-btn {
   flex-shrink: 0;
   gap: 6px;
   overflow: hidden;
@@ -136,7 +136,7 @@ body {
     box-shadow 120ms ease;
 }
 
-.macro-row .delete-btn.delete-btn-armed {
+.click-row .delete-btn.delete-btn-armed {
   transition:
     width 140ms ease-out,
     color 140ms ease-out,
@@ -149,13 +149,13 @@ body {
   background: #c83232;
 }
 
-.macro-row .delete-btn.delete-btn-armed:hover {
+.click-row .delete-btn.delete-btn-armed:hover {
   color: #fff;
   border-color: #ad2424;
   background: #ad2424;
 }
 
-.macro-main {
+.click-main {
   display: inline-flex;
   align-items: center;
   gap: 8px;

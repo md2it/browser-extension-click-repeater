@@ -21,7 +21,7 @@ const LOCALE_CONFIGS = [
     code: 'ES',
     storageLocale: 'es',
     customTitle: 'Título personalizado',
-    firstMacro: 'Mis primeras macros',
+    firstClick: 'Mis primeros clics',
     md2itPath: '/es/',
     md2itFallback: '/en/',
   },
@@ -29,7 +29,7 @@ const LOCALE_CONFIGS = [
     code: 'FR',
     storageLocale: 'fr',
     customTitle: 'Titre personnalisé',
-    firstMacro: 'Mes premières macros',
+    firstClick: 'Mes premiers clics',
     md2itPath: '/fr/',
     md2itFallback: '/en/',
   },
@@ -37,7 +37,7 @@ const LOCALE_CONFIGS = [
     code: 'DE',
     storageLocale: 'de',
     customTitle: 'Benutzerdefinierter Titel',
-    firstMacro: 'Meine ersten Makros',
+    firstClick: 'Meine ersten Klicks',
     md2itPath: '/de/',
     md2itFallback: '/en/',
   },
@@ -45,7 +45,7 @@ const LOCALE_CONFIGS = [
     code: 'RU',
     storageLocale: 'ru',
     customTitle: 'Свой заголовок',
-    firstMacro: 'Мои первые макросы',
+    firstClick: 'Мои первые нажатия',
     md2itPath: '/ru/',
     md2itFallback: '/en/',
   },
@@ -53,7 +53,7 @@ const LOCALE_CONFIGS = [
     code: 'ZH',
     storageLocale: 'zh_CN',
     customTitle: '自定义标题',
-    firstMacro: '我的第一个宏',
+    firstClick: '我的第一次点击',
     md2itPath: '/zh/',
     md2itFallback: '/en/',
   },
@@ -61,7 +61,7 @@ const LOCALE_CONFIGS = [
     code: 'AR',
     storageLocale: 'ar',
     customTitle: 'عنوان مخصص',
-    firstMacro: 'أول ماكرو لي',
+    firstClick: 'أول نقراتي',
     md2itPath: '/ar/',
     md2itFallback: '/en/',
   },
@@ -69,7 +69,7 @@ const LOCALE_CONFIGS = [
 
 const MOCK_DEFAULT_ID = 'macro-001';
 
-function buildMacros(customTitle, firstMacro) {
+function buildClicks(customTitle, firstClick) {
   return [
     {
       id: 'macro-001',
@@ -100,7 +100,7 @@ function buildMacros(customTitle, firstMacro) {
     },
     {
       id: 'macro-004',
-      name: firstMacro,
+      name: firstClick,
       repeats: 1,
       displayMoves: true,
       trackMoves: true,
@@ -396,7 +396,7 @@ async function main() {
 
   for (const cfg of LOCALE_CONFIGS) {
     console.log(`\n── ${cfg.code} ──────────────────────────────────────`);
-    const macros = buildMacros(cfg.customTitle, cfg.firstMacro);
+    const macros = buildMacros(cfg.customTitle, cfg.firstClick);
     const settingsLight = { ...settingsBase, darkTheme: false };
     const settingsDark  = { ...settingsBase, darkTheme: true };
     const locale = cfg.storageLocale;

@@ -221,15 +221,15 @@ kbd {
   color: inherit;
 }
 
-.macro-main {
+.click-main {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
 }
 
-.macro-mode-icon,
-.macro-display-moves-icon {
+.click-mode-icon,
+.click-display-moves-icon {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -237,8 +237,8 @@ kbd {
   color: #4f5570;
 }
 
-.macro-mode-icon svg,
-.macro-display-moves-icon svg {
+.click-mode-icon svg,
+.click-display-moves-icon svg {
   width: 16px;
   height: 16px;
 }

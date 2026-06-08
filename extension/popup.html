@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Macros Repeater</title>
+    <title>Click Repeater</title>
     <link rel="stylesheet" href="app/popup/base.css" />
     <link rel="stylesheet" href="app/popup/modal.css" />
     <link rel="stylesheet" href="app/popup/steps.css" />
@@ -13,20 +13,20 @@
   <body>
     <main class="popup-shell">
       <nav class="popup-menu" aria-label="Popup pages">
-        <button class="popup-menu-btn active" type="button" data-page="macros" aria-current="page"></button>
+        <button class="popup-menu-btn active" type="button" data-page="clicks" aria-current="page"></button>
         <button class="popup-menu-btn" type="button" data-page="settings"></button>
         <button class="popup-menu-btn" type="button" data-page="shortcuts"></button>
         <button class="popup-menu-btn" type="button" data-page="about"></button>
       </nav>
 
       <div class="popup-content">
-        <section class="popup-page popup" data-page-content="macros">
-          <button id="new-macro-btn" class="btn btn-primary" type="button" data-i18n="newMacro">NEW macro</button>
+        <section class="popup-page popup" data-page-content="clicks">
+          <button id="record-btn" class="btn btn-primary" type="button" data-i18n="newMacro">RECORD</button>
 
           <p id="status-line" class="status-line" role="status" aria-live="polite"></p>
 
           <section>
-            <ul id="macros-list" class="macros-list"></ul>
+            <ul id="clicks-list" class="clicks-list"></ul>
           </section>
 
           <button id="stop-execution-btn" class="btn btn-danger hidden" type="button" data-i18n="stop">STOP</button>
@@ -44,10 +44,10 @@
               <span class="settings-row-label" data-i18n="executionSpeed">Execution speed</span>
               <button id="setting-execution-speed" class="speed-cycle-btn" type="button"></button>
             </div>
-            <label class="settings-row" for="setting-skip-new-macro">
-              <span class="settings-row-label" data-i18n="skipNewMacro">Skip explanations for new macros</span>
+            <label class="settings-row" for="setting-skip-new-recording">
+              <span class="settings-row-label" data-i18n="skipNewMacro">Skip explanations for new recordings</span>
               <span class="settings-toggle-wrap">
-                <input type="checkbox" id="setting-skip-new-macro" class="visually-hidden" />
+                <input type="checkbox" id="setting-skip-new-recording" class="visually-hidden" />
                 <span class="toggle-switch-visual" aria-hidden="true"></span>
               </span>
             </label>
@@ -95,7 +95,7 @@
         </section>
 
         <section class="popup-page about-page hidden" data-page-content="about">
-          <h1 class="page-title" data-i18n="aboutTitle">MACROS REPEATER</h1>
+          <h1 class="page-title" data-i18n="aboutTitle">CLICK REPEATER</h1>
           <div class="page-divider"></div>
           <ul class="about-list">
             <li><span class="about-icon" data-about-icon="mousePointer"></span><span data-i18n="aboutRecordsClicks">Records clicks on a page</span></li>
@@ -104,9 +104,9 @@
             <li><span class="about-icon" data-about-icon="code"></span><span data-i18n="aboutElementMode">Element mode: clicks page elements</span></li>
             <li><span class="about-icon" data-about-icon="eye"></span><span data-i18n="aboutVisibleMode">Visible mode: shows movement and clicks</span></li>
             <li><span class="about-icon" data-about-icon="eyeOff"></span><span data-i18n="aboutStealthMode">Stealth mode: works without visualisation</span></li>
-            <li><span class="about-icon" data-about-icon="repeat2"></span><span data-i18n="aboutRepeats">Repeats a macros up to 999 times</span></li>
+            <li><span class="about-icon" data-about-icon="repeat2"></span><span data-i18n="aboutRepeats">Repeats clicks up to 999 times</span></li>
             <li><span class="about-icon" data-about-icon="gauge"></span><span data-i18n="aboutSpeed">Execution speed: 0.25×, 0.5×, 1×, 2×</span></li>
-            <li><span class="about-icon" data-about-icon="star"></span><span data-i18n="aboutDefaultShortcut">"Default" macros can be launched with a shortcut</span></li>
+            <li><span class="about-icon" data-about-icon="star"></span><span data-i18n="aboutDefaultShortcut">"Default" can be launched with a shortcut</span></li>
             <li><span class="about-icon" data-about-icon="shieldCheck"></span><span data-i18n="noNetwork">Doesn't use the network</span></li>
             <li>
               <span class="about-icon" data-about-icon="gitFork"></span>
@@ -119,7 +119,7 @@
           </ul>
           <footer class="about-footer">
             <div class="soft-divider"></div>
-            <p>Macros Repeater</p>
+            <p>Click Repeater</p>
             <p>© <a href="https://www.md2it.com/" target="_blank" rel="noopener noreferrer">md2it</a></p>
           </footer>
         </section>
@@ -129,7 +129,7 @@
     <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
       <div class="modal">
         <div class="modal-header">
-          <h3 id="edit-modal-title" data-i18n="editMacroTitle">Edit macro</h3>
+          <h3 id="edit-modal-title" data-i18n="editMacroTitle">Edit</h3>
           <button id="close-edit-btn" class="modal-close-btn" type="button" data-i18n-title="close"></button>
         </div>
 
@@ -174,21 +174,21 @@
       </div>
     </div>
 
-    <div id="new-macro-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="new-macro-modal-title">
+    <div id="record-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="record-modal-title">
       <div class="modal">
         <div class="modal-header">
-          <h3 id="new-macro-modal-title" data-i18n="newMacroTitle">New macro</h3>
-          <button id="close-new-macro-modal-btn" class="modal-close-btn" type="button" data-i18n-title="close"></button>
+          <h3 id="record-modal-title" data-i18n="newMacroTitle">Record clicks</h3>
+          <button id="close-record-modal-btn" class="modal-close-btn" type="button" data-i18n-title="close"></button>
         </div>
         <p class="modal-description" data-i18n="newMacroDescription"></p>
-        <label class="dont-show-row" for="new-macro-dont-show">
-          <input type="checkbox" id="new-macro-dont-show" class="visually-hidden" />
+        <label class="dont-show-row" for="record-dont-show">
+          <input type="checkbox" id="record-dont-show" class="visually-hidden" />
           <span class="toggle-switch-visual" aria-hidden="true"></span>
           <span class="dont-show-label" data-i18n="dontShowAgain">Don't show me again</span>
         </label>
         <div class="modal-actions explanation-modal-actions">
-          <button id="new-macro-start-btn" class="btn btn-primary" type="button" data-i18n="start">Start</button>
-          <button id="new-macro-cancel-btn" class="btn" type="button" data-i18n="cancel">Cancel</button>
+          <button id="record-start-btn" class="btn btn-primary" type="button" data-i18n="start">Start</button>
+          <button id="record-cancel-btn" class="btn" type="button" data-i18n="cancel">Cancel</button>
         </div>
       </div>
     </div>

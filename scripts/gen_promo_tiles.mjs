@@ -268,7 +268,7 @@ function drawBrand(ctx, iconImg, cx, cy, iconSize, nameFontSize, textGap) {
   ctx.fillStyle = '#ffffff';
   ctx.font = `bold ${nameFontSize}px Arial`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillText('MACROS',   cx, textY);
+  ctx.fillText('CLICK',   cx, textY);
   ctx.fillText('REPEATER', cx, textY + nameFontSize + 3);
   ctx.restore();
 }

@@ -16,7 +16,7 @@ const RESTRICTED_NOTICE_SESSION_KEY = "restrictedNotice";
 const RESTRICTED_NOTICE_CONFIG = {
   popupHtml: RESTRICTED_NOTICE_POPUP,
   sessionKey: RESTRICTED_NOTICE_SESSION_KEY,
-  logLabel: "Macros Repeater",
+  logLabel: "Click Repeater",
 };
 
 function detectRestrictedNoticeLocale() {

@@ -1,5 +1,5 @@
 {
   "commandRunDefaultMacro": {
-    "message": "Запустить макрос по умолчанию: 1.\u00A0Ctrl+Shift+X\u00A0/\u00A0⇧⌘X 2.\u00A0отпустите\u00A0клавиши 3.\u00A0затем\u00A0нажмите\u00A0M"
+    "message": "Run default"
   }
 }

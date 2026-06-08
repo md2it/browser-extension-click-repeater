@@ -1,5 +1,5 @@
 
-async function startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMoves, executionSpeed, steps }) {
+async function startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMoves, executionSpeed, steps }) {
   const currentState = await getRuntimeExecutionState();
   if (currentState?.isRunning) {
     return { ok: false, error: "already_running", state: currentState };
@@ -23,8 +23,8 @@ async function startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMo
   const totalSteps = stepsPerCycle * repeats;
   const state = {
     isRunning: true,
-    macroId,
-    macroName,
+    clickId,
+    clickName,
     tabId,
     repeats,
     stepsPerCycle,
@@ -39,8 +39,8 @@ async function startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMo
   try {
     const tabResponse = await ext.tabs.sendMessage(tabId, {
       type: "execution-run",
-      macroId,
-      macroName,
+      clickId,
+      clickName,
       repeats,
       steps,
       trackMoves,
@@ -61,8 +61,8 @@ async function startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMo
     ok: true,
     state: {
       isRunning: true,
-      macroId: state.macroId,
-      macroName: state.macroName,
+      clickId: state.clickId,
+      clickName: state.clickName,
       tabId: state.tabId,
       repeats: state.repeats,
       startedAt: state.startedAt,
@@ -98,8 +98,8 @@ async function getRuntimeExecutionState() {
 
   return {
     isRunning: true,
-    macroId: state.macroId ?? null,
-    macroName: typeof state.macroName === "string" ? state.macroName : "macros",
+    clickId: state.clickId ?? null,
+    clickName: typeof state.clickName === "string" ? state.clickName : "clicks",
     tabId: Number.isInteger(state.tabId) ? state.tabId : null,
     repeats: Number.isFinite(Number(state.repeats)) ? Number(state.repeats) : 1,
     startedAt: Number(state.startedAt) || Date.now(),

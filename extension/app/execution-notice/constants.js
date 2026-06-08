@@ -2,21 +2,21 @@
 
 const EXECUTION_ERROR_NOTICE_MESSAGES = {
   "stopped": {
-    en: "Macro stopped",
-    es: "Macro detenida",
-    fr: "Macro arrêtée",
-    de: "Makro gestoppt",
-    ru: "Макрос остановлен",
-    zh: "宏已停止",
-    ar: "تم إيقاف الماكرو",
+    en: "Stopped",
+    es: "Detenido",
+    fr: "Arrêté",
+    de: "Gestoppt",
+    ru: "Остановлено",
+    zh: "已停止",
+    ar: "تم الإيقاف",
   },
   "user-click": {
-    en: "Macro stopped by the user",
-    es: "Macro detenida por el usuario",
-    fr: "Macro arrêtée par l'utilisateur",
-    de: "Makro vom Benutzer gestoppt",
-    ru: "Макрос остановлен пользователем",
-    zh: "宏已被用户停止",
+    en: "Stopped by the user",
+    es: "Detenido por el usuario",
+    fr: "Arrêté par l'utilisateur",
+    de: "Vom Benutzer gestoppt",
+    ru: "Остановлено пользователем",
+    zh: "已被用户停止",
     ar: "أوقف المستخدم الماكرو",
   },
   "element-not-found": {
@@ -29,22 +29,22 @@ const EXECUTION_ERROR_NOTICE_MESSAGES = {
     ar: "لم يتم العثور على العنصر: العنصر المحفوظ مفقود أو لم يعد يطابق المحدد",
   },
   "empty-steps": {
-    en: "The macro has no steps",
-    es: "La macro no tiene pasos",
-    fr: "La macro ne contient aucune étape",
+    en: "No steps recorded",
+    es: "Sin pasos grabados",
+    fr: "Aucune étape enregistrée",
     de: "Das Makro enthält keine Schritte",
     ru: "В макросе нет шагов",
-    zh: "宏没有步骤",
+    zh: "没有记录的步骤",
     ar: "لا يحتوي الماكرو على خطوات",
   },
   "failed": {
-    en: "Could not run the macro",
-    es: "No se pudo ejecutar la macro",
-    fr: "Impossible d'exécuter la macro",
-    de: "Makro konnte nicht ausgeführt werden",
+    en: "Could not run",
+    es: "No se pudo ejecutar",
+    fr: "Impossible d'exécuter",
+    de: "Konnte nicht ausgeführt werden",
     ru: "Не удалось выполнить макрос",
-    zh: "无法运行宏",
-    ar: "تعذر تشغيل الماكرو",
+    zh: "无法运行",
+    ar: "تعذر التشغيل",
   },
 };
 
@@ -54,7 +54,7 @@ const EXECUTION_NOTICE_SESSION_KEY = "executionErrorNotice";
 const EXECUTION_NOTICE_CONFIG = {
   popupHtml: EXECUTION_NOTICE_POPUP,
   sessionKey: EXECUTION_NOTICE_SESSION_KEY,
-  logLabel: "Macros Repeater",
+  logLabel: "Click Repeater",
 };
 
 function executionErrorNoticeText(kind, locale) {

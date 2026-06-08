@@ -1,17 +1,17 @@
-const CONTEXT_MENU_MACROS = "macros";
+const CONTEXT_MENU_CLICKS = "clicks";
 const CONTEXT_MENU_SETTINGS = "settings";
 const CONTEXT_MENU_SHORTCUTS = "shortcuts";
 const CONTEXT_MENU_ABOUT = "about";
 
 const CONTEXT_MENU_EMOJI = {
-  macros: "▶️",
+  clicks: "▶️",
   settings: "⚙️",
   shortcuts: "⌨️",
   about: "ℹ️",
 };
 
 const CONTEXT_MENU_NAV_KEYS = {
-  macros: "navMacros",
+  clicks: "navMacros",
   settings: "navSettings",
   shortcuts: "navShortcuts",
   about: "navAbout",
@@ -37,7 +37,7 @@ async function createContextMenuItem(props) {
   try {
     await ext.contextMenus.create(props);
   } catch (err) {
-    console.error("[Macros Repeater] contextMenus.create failed:", err, props);
+    console.error("[Click Repeater] contextMenus.create failed:", err, props);
   }
 }
 
@@ -49,9 +49,9 @@ function ensureContextMenu() {
     try {
       await ext.contextMenus.removeAll();
     } catch (err) {
-      console.error("[Macros Repeater] contextMenus.removeAll failed:", err);
+      console.error("[Click Repeater] contextMenus.removeAll failed:", err);
     }
-    for (const id of [CONTEXT_MENU_MACROS, CONTEXT_MENU_SETTINGS, CONTEXT_MENU_SHORTCUTS, CONTEXT_MENU_ABOUT]) {
+    for (const id of [CONTEXT_MENU_CLICKS, CONTEXT_MENU_SETTINGS, CONTEXT_MENU_SHORTCUTS, CONTEXT_MENU_ABOUT]) {
       await createContextMenuItem({
         id,
         title: contextMenuTitle(id, locale),
@@ -76,7 +76,7 @@ ext.storage.onChanged.addListener((changes, area) => {
 
 ext.contextMenus.onClicked.addListener((info, tab) => {
   const page = info.menuItemId;
-  if (page === CONTEXT_MENU_MACROS || page === CONTEXT_MENU_SETTINGS ||
+  if (page === CONTEXT_MENU_CLICKS || page === CONTEXT_MENU_SETTINGS ||
       page === CONTEXT_MENU_SHORTCUTS || page === CONTEXT_MENU_ABOUT) {
     void openMainPopup(tab?.id, tab?.windowId, page);
   }

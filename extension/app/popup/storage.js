@@ -49,19 +49,19 @@ function setEditDefault(enabled) {
   refs.editDefaultToggle.setAttribute("aria-pressed", String(isDefault));
 }
 
-function buildDefaultMacroName() {
+function buildDefaultClickName() {
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
   const time = now.toTimeString().slice(0, 5);
-  return `Macro ${date} ${time}`;
+  return `Clicks ${date} ${time}`;
 }
 
-function createMacroId() {
+function createClickId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
 
-  return `macro-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  return `click-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 }
 
 function sendRuntimeMessage(message) {
@@ -82,15 +82,15 @@ async function getActiveTab() {
   return tabs[0] ?? null;
 }
 
-async function readMacrosFromStorage() {
+async function readClicksFromStorage() {
   try {
     const data = await ext.storage.local.get(STORAGE_KEY);
-    const storedMacros = data?.[STORAGE_KEY];
-    if (!Array.isArray(storedMacros)) {
+    const storedClicks = data?.[STORAGE_KEY];
+    if (!Array.isArray(storedClicks)) {
       return [];
     }
 
-    return storedMacros
+    return storedClicks
       .filter((item) => item && typeof item.id === "string" && typeof item.name === "string")
       .map((item) => ({
         ...item,
@@ -102,39 +102,39 @@ async function readMacrosFromStorage() {
   }
 }
 
-async function readDefaultMacroIdFromStorage() {
+async function readDefaultClickIdFromStorage() {
   try {
-    const data = await ext.storage.local.get(DEFAULT_MACRO_ID_KEY);
-    return typeof data?.[DEFAULT_MACRO_ID_KEY] === "string" ? data[DEFAULT_MACRO_ID_KEY] : null;
+    const data = await ext.storage.local.get(DEFAULT_CLICK_ID_KEY);
+    return typeof data?.[DEFAULT_CLICK_ID_KEY] === "string" ? data[DEFAULT_CLICK_ID_KEY] : null;
   } catch {
     return null;
   }
 }
 
-async function persistMacros() {
-  await ext.storage.local.set({ [STORAGE_KEY]: macros });
+async function persistClicks() {
+  await ext.storage.local.set({ [STORAGE_KEY]: clicks });
 }
 
-async function persistDefaultMacroId() {
-  await ext.storage.local.set({ [DEFAULT_MACRO_ID_KEY]: defaultMacroId });
+async function persistDefaultClickId() {
+  await ext.storage.local.set({ [DEFAULT_CLICK_ID_KEY]: defaultClickId });
 }
 
-async function loadMacros() {
-  const storedMacros = await readMacrosFromStorage();
-  macros.length = 0;
-  macros.push(...storedMacros);
+async function loadClicks() {
+  const storedClicks = await readClicksFromStorage();
+  clicks.length = 0;
+  clicks.push(...storedClicks);
 
-  defaultMacroId = await readDefaultMacroIdFromStorage();
-  if (defaultMacroId && !macros.some((macro) => macro.id === defaultMacroId)) {
-    defaultMacroId = null;
-    await persistDefaultMacroId();
+  defaultClickId = await readDefaultClickIdFromStorage();
+  if (defaultClickId && !clicks.some((macro) => macro.id === defaultClickId)) {
+    defaultClickId = null;
+    await persistDefaultClickId();
   }
 
-  if (defaultMacroId) {
-    const defaultIndex = macros.findIndex((macro) => macro.id === defaultMacroId);
+  if (defaultClickId) {
+    const defaultIndex = clicks.findIndex((macro) => macro.id === defaultClickId);
     if (defaultIndex > 0) {
-      const [defaultMacro] = macros.splice(defaultIndex, 1);
-      macros.unshift(defaultMacro);
+      const [defaultClick] = clicks.splice(defaultIndex, 1);
+      clicks.unshift(defaultClick);
     }
   }
 }
@@ -147,8 +147,8 @@ async function readSettingsFromStorage() {
       if (EXECUTION_SPEED_VALUES.includes(stored.executionSpeed)) {
         settings.executionSpeed = stored.executionSpeed;
       }
-      if (typeof stored.skipNewMacroExplanation === "boolean") {
-        settings.skipNewMacroExplanation = stored.skipNewMacroExplanation;
+      if (typeof stored.skipNewClickExplanation === "boolean") {
+        settings.skipNewClickExplanation = stored.skipNewClickExplanation;
       }
       if (typeof stored.skipDisplayMovesExplanation === "boolean") {
         settings.skipDisplayMovesExplanation = stored.skipDisplayMovesExplanation;
@@ -169,7 +169,7 @@ async function persistSettings() {
 
 function syncSettingsUI() {
   refs.settingExecutionSpeed.textContent = `${settings.executionSpeed}×`;
-  refs.settingSkipNewMacro.checked = settings.skipNewMacroExplanation;
+  refs.settingSkipNewRecording.checked = settings.skipNewClickExplanation;
   refs.settingSkipDisplayMoves.checked = settings.skipDisplayMovesExplanation;
   refs.settingSkipMode.checked = settings.skipModeExplanation;
   refs.settingDarkTheme.checked = settings.darkTheme;
@@ -180,15 +180,15 @@ async function cleanupLegacyTrackMovesSetting() {
   await ext.storage.local.remove("track_moves_enabled");
 }
 
-async function setDefaultMacro(macroId, enabled = true) {
-  const macro = macros.find((item) => item.id === macroId);
+async function setDefaultClick(macroId, enabled = true) {
+  const macro = clicks.find((item) => item.id === macroId);
   if (!macro) {
     setStatus(t("macroNotFound"));
     return;
   }
 
-  defaultMacroId = enabled ? macroId : null;
-  await persistDefaultMacroId();
+  defaultClickId = enabled ? macroId : null;
+  await persistDefaultClickId();
   render();
   setStatus(enabled ? t("defaultMacroSet", { name: macro.name }) : t("defaultMacroUnset"));
 }

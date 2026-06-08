@@ -52,8 +52,8 @@ html.dark-theme .status-line,
 html.dark-theme .modal-description,
 html.dark-theme .explanation-list,
 html.dark-theme .dont-show-row,
-html.dark-theme .macro-mode-icon,
-html.dark-theme .macro-display-moves-icon {
+html.dark-theme .click-mode-icon,
+html.dark-theme .click-display-moves-icon {
   color: #cbd5e1;
 }
 
@@ -91,7 +91,7 @@ html.dark-theme .speed-cycle-btn:hover {
 }
 
 html.dark-theme .btn.btn-primary,
-html.dark-theme .macro-row .run-btn,
+html.dark-theme .click-row .run-btn,
 html.dark-theme .language-btn.active {
   border-color: #3856c8;
   color: #fff;
@@ -114,7 +114,7 @@ html.dark-theme .btn-success {
   background: #188c3a;
 }
 
-html.dark-theme .macro-row {
+html.dark-theme .click-row {
   border-color: #374151;
   background: rgba(31, 41, 55, 0.88);
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.28);
@@ -155,7 +155,7 @@ html.dark-theme .edit-name-field {
 
 html.dark-theme .edit-name-field:hover,
 html.dark-theme .edit-repeat-setting:hover,
-html.dark-theme .macro-repeats:hover {
+html.dark-theme .click-repeats:hover {
   border-color: #7185e8;
   background: #273449;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
@@ -163,7 +163,7 @@ html.dark-theme .macro-repeats:hover {
 
 html.dark-theme .edit-name-field:focus-within,
 html.dark-theme .edit-repeat-setting:focus-within,
-html.dark-theme .macro-repeats:focus {
+html.dark-theme .click-repeats:focus {
   border-color: #7185e8;
   background: #1f2937;
   box-shadow: 0 0 0 1px #7185e8;

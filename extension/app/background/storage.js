@@ -1,5 +1,5 @@
 
-function buildMacroName(domain) {
+function buildClickName(domain) {
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
   const time = now.toTimeString().slice(0, 5);
@@ -37,19 +37,19 @@ async function readExecutionState() {
   return data?.[EXECUTION_STATE_KEY] ?? null;
 }
 
-async function readMacros() {
-  const data = await ext.storage.local.get(MACROS_STORAGE_KEY);
-  const storedMacros = data?.[MACROS_STORAGE_KEY];
-  if (!Array.isArray(storedMacros)) {
+async function readClicks() {
+  const data = await ext.storage.local.get(CLICKS_STORAGE_KEY);
+  const storedClicks = data?.[CLICKS_STORAGE_KEY];
+  if (!Array.isArray(storedClicks)) {
     return [];
   }
 
-  return storedMacros.filter((macro) => macro && typeof macro.id === "string");
+  return storedClicks.filter((click) => click && typeof click.id === "string");
 }
 
-async function readDefaultMacroId() {
-  const data = await ext.storage.local.get(DEFAULT_MACRO_ID_KEY);
-  return typeof data?.[DEFAULT_MACRO_ID_KEY] === "string" ? data[DEFAULT_MACRO_ID_KEY] : null;
+async function readDefaultClickId() {
+  const data = await ext.storage.local.get(DEFAULT_CLICK_ID_KEY);
+  return typeof data?.[DEFAULT_CLICK_ID_KEY] === "string" ? data[DEFAULT_CLICK_ID_KEY] : null;
 }
 
 async function writeExecutionState(state) {

@@ -3,40 +3,40 @@ function render() {
   clearDeleteConfirmation();
   refs.list.innerHTML = "";
 
-  if (macros.length === 0) {
+  if (clicks.length === 0) {
     const emptyRow = document.createElement("li");
-    emptyRow.className = "macro-row";
+    emptyRow.className = "click-row";
     emptyRow.textContent = t("emptyList");
     refs.list.append(emptyRow);
     syncPopupHeight();
     return;
   }
 
-  for (const macro of macros) {
+  for (const macro of clicks) {
     const displayMovesEnabled = getDisplayMovesValue(macro);
     const displayMovesTitle = t(displayMovesEnabled ? "displayMovesOn" : "displayMovesOff");
     const displayMovesIcon = displayMovesEnabled ? iconSet.eye : iconSet.eyeOff;
     const displayMovesClassName = displayMovesEnabled ? "display-moves-on" : "display-moves-off";
     const modeIcon = (macro.mode ?? "position") === "element" ? iconSet.code : iconSet.crosshair;
     const modeTitle = t((macro.mode ?? "position") === "element" ? "modeElement" : "modePosition");
-    const isDefault = macro.id === defaultMacroId;
+    const isDefault = macro.id === defaultClickId;
     const defaultTitle = t(isDefault ? "defaultMacro" : "makeDefault");
     const defaultDetail = t(isDefault ? "worksByShortcut" : "enableShortcut");
     const row = document.createElement("li");
-    row.className = "macro-item";
-    row.dataset.macroId = macro.id;
+    row.className = "click-item";
+    row.dataset.clickId = macro.id;
     row.innerHTML = `
       <span class="drag-handle" data-action="drag-handle" aria-hidden="true">${iconSet.gripVertical}</span>
-      <div class="macro-row">
-        <div class="macro-main">
+      <div class="click-row">
+        <div class="click-main">
           <button class="icon-btn run-btn" type="button" data-action="run" data-id="${macro.id}" data-tooltip="${t("run")}" aria-label="${t("run")}">${iconSet.play}</button>
-          <span class="macro-mode-icon" aria-hidden="true" data-tooltip="${modeTitle}">${modeIcon}</span>
-          <span class="macro-display-moves-icon ${displayMovesClassName}" aria-hidden="true" data-tooltip="${displayMovesTitle}">${displayMovesIcon}</span>
-          <span class="macro-name">${macro.name}</span>
+          <span class="click-mode-icon" aria-hidden="true" data-tooltip="${modeTitle}">${modeIcon}</span>
+          <span class="click-display-moves-icon ${displayMovesClassName}" aria-hidden="true" data-tooltip="${displayMovesTitle}">${displayMovesIcon}</span>
+          <span class="click-name">${macro.name}</span>
         </div>
-        <div class="macro-actions">
+        <div class="click-actions">
           <button class="icon-btn default-btn ${isDefault ? "active" : ""}" type="button" data-action="set-default" data-id="${macro.id}" data-tooltip="${defaultTitle}" data-tooltip-detail="${defaultDetail}" aria-label="${defaultTitle}. ${defaultDetail}" aria-pressed="${isDefault}">${iconSet.star}</button>
-          <span class="repeat-field" data-tooltip="${t("repeat")}"><input class="macro-repeats repeat-input" type="number" min="1" max="999" step="1" inputmode="numeric" value="${normalizeRepeats(macro.repeats)}" data-action="set-repeats" data-id="${macro.id}" aria-label="${t("repeat")}" /></span>
+          <span class="repeat-field" data-tooltip="${t("repeat")}"><input class="click-repeats repeat-input" type="number" min="1" max="999" step="1" inputmode="numeric" value="${normalizeRepeats(macro.repeats)}" data-action="set-repeats" data-id="${macro.id}" aria-label="${t("repeat")}" /></span>
           <button class="icon-btn" type="button" data-action="edit" data-id="${macro.id}" data-tooltip="${t("edit")}" aria-label="${t("edit")}">${iconSet.squarePen}</button>
           <button class="icon-btn delete-btn" type="button" data-action="delete" data-id="${macro.id}" data-tooltip="${t("delete")}" aria-label="${t("delete")}">${iconSet.trash}</button>
         </div>
@@ -84,12 +84,12 @@ function clearDeleteConfirmation() {
     }
   }
 
-  state.pendingDeleteMacroId = null;
+  state.pendingDeleteClickId = null;
 }
 
 function armDeleteButton(button, macroId) {
   clearDeleteConfirmation();
-  state.pendingDeleteMacroId = macroId;
+  state.pendingDeleteClickId = macroId;
   button.dataset.tooltip = t("confirmDelete");
   button.setAttribute("aria-label", t("confirmDelete"));
   for (const existingLabel of button.querySelectorAll(".delete-btn-label")) {
@@ -111,41 +111,41 @@ function armDeleteButton(button, macroId) {
   syncPopupHeight();
 }
 
-async function deleteMacro(macroId) {
-  const index = macros.findIndex((item) => item.id === macroId);
+async function deleteClick(macroId) {
+  const index = clicks.findIndex((item) => item.id === macroId);
   if (index < 0) {
     clearDeleteConfirmation();
     setStatus(t("macroNotFound"));
     return;
   }
 
-  const [deletedMacro] = macros.splice(index, 1);
-  if (deletedMacro.id === defaultMacroId) {
-    defaultMacroId = null;
-    await persistDefaultMacroId();
+  const [deletedClick] = clicks.splice(index, 1);
+  if (deletedClick.id === defaultClickId) {
+    defaultClickId = null;
+    await persistDefaultClickId();
   }
 
   clearDeleteConfirmation();
-  await persistMacros();
+  await persistClicks();
   render();
   setStatus(t("macroDeleted"));
 }
 
 function openEditModal(macroId, { selectAll = false } = {}) {
   if (macroId !== null) {
-    const macro = macros.find((item) => item.id === macroId);
+    const macro = clicks.find((item) => item.id === macroId);
     if (!macro) {
       setStatus(t("macroNotFound"));
       return;
     }
 
     state.modalMode = "edit";
-    state.editMacroId = macro.id;
+    state.editClickId = macro.id;
     refs.editModalTitle.textContent = t("editMacroTitle");
     refs.editName.value = macro.name;
     refs.editRepeats.value = String(macro.repeats ?? 1);
     setEditDisplayMoves(getDisplayMovesValue(macro));
-    setEditDefault(macro.id === defaultMacroId);
+    setEditDefault(macro.id === defaultClickId);
     setEditMode(macro.mode ?? "position");
     renderEditSteps(Array.isArray(macro.steps) ? macro.steps : []);
     refs.editModal.classList.remove("hidden");
@@ -159,9 +159,9 @@ function openEditModal(macroId, { selectAll = false } = {}) {
   }
 
   state.modalMode = "create";
-  state.editMacroId = null;
+  state.editClickId = null;
   refs.editModalTitle.textContent = t("createMacroTitle");
-  refs.editName.value = buildDefaultMacroName();
+  refs.editName.value = buildDefaultClickName();
   refs.editRepeats.value = "1";
   setEditDisplayMoves(true);
   setEditDefault(false);
@@ -207,20 +207,20 @@ function requestCloseEditModal() {
 
 function closeEditModal() {
   state.modalMode = null;
-  state.editMacroId = null;
+  state.editClickId = null;
   refs.editNameField.classList.remove("invalid");
   refs.editModal.classList.add("hidden");
   syncPopupHeight();
 }
 
-function openNewMacroModal() {
-  refs.newMacroDontShow.checked = false;
-  refs.newMacroModal.classList.remove("hidden");
+function openRecordModal() {
+  refs.recordDontShow.checked = false;
+  refs.recordModal.classList.remove("hidden");
   syncPopupHeight();
 }
 
-function closeNewMacroModal() {
-  refs.newMacroModal.classList.add("hidden");
+function closeRecordModal() {
+  refs.recordModal.classList.add("hidden");
   syncPopupHeight();
 }
 
@@ -282,9 +282,9 @@ async function completeCreateModeIfNeeded() {
     ? response.steps.filter((step) => step && typeof step === "object" && (step.position || step.selector))
     : [];
 
-  const createdMacro = {
-    id: createMacroId(),
-    name: typeof response.macroName === "string" && response.macroName.trim() ? response.macroName : buildDefaultMacroName(),
+  const createdClick = {
+    id: createClickId(),
+    name: typeof response.clickName === "string" && response.clickName.trim() ? response.clickName : buildDefaultClickName(),
     repeats: 1,
     displayMoves: true,
     trackMoves: true,
@@ -292,17 +292,17 @@ async function completeCreateModeIfNeeded() {
     steps
   };
 
-  macros.unshift(createdMacro);
-  await persistMacros();
-  return createdMacro;
+  clicks.unshift(createdClick);
+  await persistClicks();
+  return createdClick;
 }
 
 function getCurrentEditSteps() {
-  if (!state.editMacroId) {
+  if (!state.editClickId) {
     return [];
   }
 
-  const macro = macros.find((item) => item.id === state.editMacroId);
+  const macro = clicks.find((item) => item.id === state.editClickId);
   return Array.isArray(macro?.steps) ? macro.steps : [];
 }
 

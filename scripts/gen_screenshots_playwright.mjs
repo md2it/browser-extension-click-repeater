@@ -15,7 +15,7 @@ const OUT_DIR = path.resolve(__dirname, '../PUBLICATION/screenshots');
 
 const W = 1280, H = 800;
 
-// Mock macros data
+// Mock data
 const MOCK_DEFAULT_ID = 'macro-001';
 const MOCK_MACROS = [
   {
@@ -47,7 +47,7 @@ const MOCK_MACROS = [
   },
   {
     id: 'macro-004',
-    name: 'My first macros',
+    name: 'My first clicks',
     repeats: 1,
     displayMoves: true,
     trackMoves: true,

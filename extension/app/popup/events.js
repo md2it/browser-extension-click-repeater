@@ -45,7 +45,7 @@ function onDragEnd() {
     return;
   }
 
-  const { dragIndex, currentSlot, macroId, items, item } = drag;
+  const { dragIndex, currentSlot, clickId, items, item } = drag;
   drag = null;
 
   for (const el of items) {
@@ -55,17 +55,17 @@ function onDragEnd() {
     el.style.zIndex = "";
   }
 
-  const card = item.querySelector(".macro-row");
+  const card = item.querySelector(".click-row");
   if (card) {
     card.style.boxShadow = "";
   }
 
   if (dragIndex !== currentSlot) {
-    const srcIndex = macros.findIndex((m) => m.id === macroId);
+    const srcIndex = clicks.findIndex((m) => m.id === clickId);
     if (srcIndex >= 0) {
-      const [moved] = macros.splice(srcIndex, 1);
-      macros.splice(currentSlot, 0, moved);
-      void persistMacros();
+      const [moved] = clicks.splice(srcIndex, 1);
+      clicks.splice(currentSlot, 0, moved);
+      void persistClicks();
     }
   }
 
@@ -78,14 +78,14 @@ refs.list.addEventListener("pointerdown", (event) => {
     return;
   }
 
-  const dragItem = handle.closest("li[data-macro-id]");
+  const dragItem = handle.closest("li[data-click-id]");
   if (!dragItem) {
     return;
   }
 
   event.preventDefault();
 
-  const items = [...refs.list.querySelectorAll("li[data-macro-id]")];
+  const items = [...refs.list.querySelectorAll("li[data-click-id]")];
   const dragIndex = items.indexOf(dragItem);
   const rects = items.map((el) => el.getBoundingClientRect());
   const gap = items.length > 1 ? rects[1].top - rects[0].bottom : 8;
@@ -94,7 +94,7 @@ refs.list.addEventListener("pointerdown", (event) => {
   dragItem.style.position = "relative";
   dragItem.style.zIndex = "100";
 
-  const card = dragItem.querySelector(".macro-row");
+  const card = dragItem.querySelector(".click-row");
   if (card) {
     card.style.boxShadow = "0 8px 24px rgba(19, 25, 48, 0.18)";
   }
@@ -115,7 +115,7 @@ refs.list.addEventListener("pointerdown", (event) => {
     dragIndex,
     currentSlot: dragIndex,
     slotHeight,
-    macroId: dragItem.dataset.macroId,
+    clickId: dragItem.dataset.clickId,
   };
 
   document.addEventListener("pointermove", onDragMove);
@@ -146,12 +146,12 @@ refs.list.addEventListener("click", (event) => {
   }
 
   if (action === "set-default") {
-    void setDefaultMacro(macroId, macroId !== defaultMacroId);
+    void setDefaultClick(macroId, macroId !== defaultClickId);
     return;
   }
 
   if (action === "toggle-display-moves") {
-    const macro = macros.find((item) => item.id === macroId);
+    const macro = clicks.find((item) => item.id === macroId);
     if (!macro) {
       setStatus(t("macroNotFound"));
       return;
@@ -160,7 +160,7 @@ refs.list.addEventListener("click", (event) => {
     const nextDisplayMoves = !getDisplayMovesValue(macro);
     macro.displayMoves = nextDisplayMoves;
     macro.trackMoves = nextDisplayMoves;
-    void persistMacros().then(() => {
+    void persistClicks().then(() => {
       render();
       setStatus(t("displayMovesChanged", {
         state: t(nextDisplayMoves ? "enabled" : "disabled"),
@@ -171,8 +171,8 @@ refs.list.addEventListener("click", (event) => {
   }
 
   if (action === "delete") {
-    if (state.pendingDeleteMacroId === macroId) {
-      void deleteMacro(macroId);
+    if (state.pendingDeleteClickId === macroId) {
+      void deleteClick(macroId);
       return;
     }
 
@@ -195,7 +195,7 @@ refs.list.addEventListener("change", (event) => {
     return;
   }
 
-  const macro = macros.find((item) => item.id === input.dataset.id);
+  const macro = clicks.find((item) => item.id === input.dataset.id);
   if (!macro) {
     setStatus(t("macroNotFound"));
     return;
@@ -203,16 +203,16 @@ refs.list.addEventListener("change", (event) => {
 
   normalizeRepeatInput(input);
   macro.repeats = Number(input.value);
-  void persistMacros().then(() => {
+  void persistClicks().then(() => {
     setStatus(t("repeatChanged", { name: macro.name, repeats: macro.repeats }));
   });
 });
 
-refs.newMacroBtn.addEventListener("click", () => {
-  if (settings.skipNewMacroExplanation) {
+refs.recordBtn.addEventListener("click", () => {
+  if (settings.skipNewClickExplanation) {
     void startCreateMode();
   } else {
-    openNewMacroModal();
+    openRecordModal();
   }
 });
 
@@ -263,8 +263,8 @@ refs.saveEditBtn.addEventListener("click", async () => {
   const validRepeats = normalizeRepeats(refs.editRepeats.value);
   const displayMoves = Boolean(refs.editDisplayMoves.checked);
 
-  if (state.modalMode === "edit" && state.editMacroId) {
-    const macro = macros.find((item) => item.id === state.editMacroId);
+  if (state.modalMode === "edit" && state.editClickId) {
+    const macro = clicks.find((item) => item.id === state.editClickId);
     if (!macro) {
       setStatus(t("macroNotFoundForSave"));
       closeEditModal();
@@ -279,11 +279,11 @@ refs.saveEditBtn.addEventListener("click", async () => {
     if (!Array.isArray(macro.steps)) {
       macro.steps = [];
     }
-    await persistMacros();
-    const nextDefaultMacroId = refs.editDefault.checked ? macro.id : null;
-    if (defaultMacroId === macro.id || nextDefaultMacroId === macro.id) {
-      defaultMacroId = nextDefaultMacroId;
-      await persistDefaultMacroId();
+    await persistClicks();
+    const nextDefaultClickId = refs.editDefault.checked ? macro.id : null;
+    if (defaultClickId === macro.id || nextDefaultClickId === macro.id) {
+      defaultClickId = nextDefaultClickId;
+      await persistDefaultClickId();
     }
     closeEditModal();
     render();
@@ -296,8 +296,8 @@ refs.saveEditBtn.addEventListener("click", async () => {
     return;
   }
 
-  const createdMacro = {
-    id: createMacroId(),
+  const createdClick = {
+    id: createClickId(),
     name,
     repeats: validRepeats,
     displayMoves,
@@ -305,11 +305,11 @@ refs.saveEditBtn.addEventListener("click", async () => {
     mode: state.editMode,
     steps: []
   };
-  macros.unshift(createdMacro);
-  await persistMacros();
+  clicks.unshift(createdClick);
+  await persistClicks();
   if (refs.editDefault.checked) {
-    defaultMacroId = createdMacro.id;
-    await persistDefaultMacroId();
+    defaultClickId = createdClick.id;
+    await persistDefaultClickId();
   }
   closeEditModal();
   render();
@@ -371,28 +371,28 @@ refs.modeModal.addEventListener("click", (event) => {
   }
 });
 
-refs.closeNewMacroModalBtn.addEventListener("click", () => {
-  closeNewMacroModal();
+refs.closeRecordModalBtn.addEventListener("click", () => {
+  closeRecordModal();
 });
 
-refs.newMacroModal.addEventListener("click", (event) => {
-  if (event.target === refs.newMacroModal) {
-    closeNewMacroModal();
+refs.recordModal.addEventListener("click", (event) => {
+  if (event.target === refs.recordModal) {
+    closeRecordModal();
   }
 });
 
-refs.newMacroStartBtn.addEventListener("click", async () => {
-  if (refs.newMacroDontShow.checked) {
-    settings.skipNewMacroExplanation = true;
+refs.recordStartBtn.addEventListener("click", async () => {
+  if (refs.recordDontShow.checked) {
+    settings.skipNewClickExplanation = true;
     syncSettingsUI();
     await persistSettings();
   }
-  closeNewMacroModal();
+  closeRecordModal();
   void startCreateMode();
 });
 
-refs.newMacroCancelBtn.addEventListener("click", () => {
-  closeNewMacroModal();
+refs.recordCancelBtn.addEventListener("click", () => {
+  closeRecordModal();
 });
 
 refs.closeDisplayMovesModalBtn.addEventListener("click", () => {
@@ -433,8 +433,8 @@ refs.settingExecutionSpeed.addEventListener("click", async () => {
   await persistSettings();
 });
 
-refs.settingSkipNewMacro.addEventListener("change", async () => {
-  settings.skipNewMacroExplanation = refs.settingSkipNewMacro.checked;
+refs.settingSkipNewRecording.addEventListener("change", async () => {
+  settings.skipNewClickExplanation = refs.settingSkipNewRecording.checked;
   await persistSettings();
 });
 
@@ -477,8 +477,8 @@ function closeModalByEscape() {
     return true;
   }
 
-  if (!refs.newMacroModal.classList.contains("hidden")) {
-    closeNewMacroModal();
+  if (!refs.recordModal.classList.contains("hidden")) {
+    closeRecordModal();
     return true;
   }
 

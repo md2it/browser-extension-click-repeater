@@ -42,7 +42,7 @@ function renderExecutionStatus(executionState) {
 
   refs.stopExecutionBtn.classList.remove("hidden");
   const remaining = formatRemainingMs(executionState.remainingMs ?? 0);
-  setStatus(t("running", { name: executionState.macroName, remaining }));
+  setStatus(t("running", { name: executionState.clickName, remaining }));
 }
 
 async function refreshExecutionStatus({ silent = false } = {}) {
@@ -101,7 +101,7 @@ function describeExecutionEvent(event) {
 }
 
 async function startExecution(macroId) {
-  const macro = macros.find((item) => item.id === macroId);
+  const macro = clicks.find((item) => item.id === macroId);
   if (!macro) {
     setStatus(t("macroNotFound"));
     return;
@@ -113,13 +113,13 @@ async function startExecution(macroId) {
     return;
   }
 
-  const macroMode = macro.mode === "element" ? "element" : "position";
+  const clickMode = macro.mode === "element" ? "element" : "position";
   const steps = Array.isArray(macro.steps)
     ? macro.steps
       .map((step) => {
         if (typeof step === "string") return step;
         if (step && typeof step === "object") {
-          return macroMode === "element" ? (step.selector ?? "") : (step.position ?? "");
+          return clickMode === "element" ? (step.selector ?? "") : (step.position ?? "");
         }
         return "";
       })
@@ -132,8 +132,8 @@ async function startExecution(macroId) {
 
   const response = await sendRuntimeMessage({
     type: "execution-start",
-    macroId: macro.id,
-    macroName: macro.name,
+    clickId: macro.id,
+    clickName: macro.name,
     repeats: macro.repeats,
     tabId: activeTab.id,
     steps,

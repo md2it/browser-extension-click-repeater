@@ -1,11 +1,11 @@
-.macro-name {
+.click-name {
   font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.macro-actions {
+.click-actions {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -49,8 +49,8 @@
 }
 
 .icon-btn:not(.default-btn),
-.macro-mode-icon,
-.macro-display-moves-icon,
+.click-mode-icon,
+.click-display-moves-icon,
 .modal-close-btn,
 .edit-name-field,
 .edit-name-clear-btn,
@@ -59,8 +59,8 @@
 }
 
 .icon-btn:not(.default-btn)[data-tooltip]::after,
-.macro-mode-icon[data-tooltip]::after,
-.macro-display-moves-icon[data-tooltip]::after,
+.click-mode-icon[data-tooltip]::after,
+.click-display-moves-icon[data-tooltip]::after,
 .edit-name-clear-btn[data-tooltip]::after,
 .repeat-field[data-tooltip]::after {
   content: attr(data-tooltip);
@@ -84,8 +84,8 @@
 
 .icon-btn:not(.default-btn):hover[data-tooltip]::after,
 .icon-btn:not(.default-btn):focus-visible[data-tooltip]::after,
-.macro-mode-icon:hover[data-tooltip]::after,
-.macro-display-moves-icon:hover[data-tooltip]::after,
+.click-mode-icon:hover[data-tooltip]::after,
+.click-display-moves-icon:hover[data-tooltip]::after,
 .edit-name-clear-btn:hover[data-tooltip]::after,
 .edit-name-clear-btn:focus-visible[data-tooltip]::after,
 .repeat-field:hover[data-tooltip]::after {
@@ -512,7 +512,7 @@
   box-shadow: 0 0 0 1px #012292;
 }
 
-.macro-repeats {
+.click-repeats {
   width: 28px;
   outline: 0;
   transition:
@@ -521,13 +521,13 @@
     box-shadow 120ms ease;
 }
 
-.macro-repeats:hover {
+.click-repeats:hover {
   border-color: #8f9fc9;
   background: #fafbff;
   box-shadow: 0 0 5px rgba(19, 25, 48, 0.1);
 }
 
-.macro-repeats:focus {
+.click-repeats:focus {
   border-color: #012292;
   background: #fff;
   box-shadow: 0 0 0 1px #012292;

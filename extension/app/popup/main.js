@@ -5,12 +5,12 @@ async function init() {
   await readSettingsFromStorage();
   syncSettingsUI();
   syncPopupLocale();
-  await loadMacros();
-  const createdMacro = await completeCreateModeIfNeeded();
+  await loadClicks();
+  const createdClick = await completeCreateModeIfNeeded();
   render();
   const executionStatus = await refreshExecutionStatus();
-  if (createdMacro) {
-    openEditModal(createdMacro.id, { selectAll: true });
+  if (createdClick) {
+    openEditModal(createdClick.id, { selectAll: true });
     setStatus(t("createCompleted"));
     return;
   }

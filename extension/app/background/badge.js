@@ -123,48 +123,48 @@ async function showShortcutHintBadge() {
   }, SHORTCUT_HINT_DURATION_MS);
 }
 
-async function startDefaultMacroFromTab(tabId) {
+async function startDefaultClickFromTab(tabId) {
   if (!Number.isInteger(tabId)) {
     return { ok: false, error: "tab_id_required" };
   }
 
-  const defaultMacroId = await readDefaultMacroId();
-  if (!defaultMacroId) {
-    return { ok: false, error: "default_macro_missing" };
+  const defaultClickId = await readDefaultClickId();
+  if (!defaultClickId) {
+    return { ok: false, error: "default_click_missing" };
   }
 
-  const macros = await readMacros();
-  const macro = macros.find((item) => item.id === defaultMacroId);
-  if (!macro) {
-    return { ok: false, error: "default_macro_missing" };
+  const clicks = await readClicks();
+  const click = clicks.find((item) => item.id === defaultClickId);
+  if (!click) {
+    return { ok: false, error: "default_click_missing" };
   }
 
-  const macroMode = macro.mode === "element" ? "element" : "position";
-  const steps = Array.isArray(macro.steps)
-    ? macro.steps
+  const clickMode = click.mode === "element" ? "element" : "position";
+  const steps = Array.isArray(click.steps)
+    ? click.steps
       .map((step) => {
         if (typeof step === "string") return step;
         if (step && typeof step === "object") {
-          return macroMode === "element" ? (step.selector ?? "") : (step.position ?? "");
+          return clickMode === "element" ? (step.selector ?? "") : (step.position ?? "");
         }
         return "";
       })
       .filter((step) => step && step.trim())
     : [];
-  const macroName = typeof macro.name === "string" && macro.name.trim() ? macro.name.trim() : "macros";
+  const clickName = typeof click.name === "string" && click.name.trim() ? click.name.trim() : "clicks";
   if (!steps.length) {
     // Preserve the failure so the popup can report a shortcut-triggered run.
-    await writeExecutionLastEvent({ kind: "empty-steps", macroName });
+    await writeExecutionLastEvent({ kind: "empty-steps", clickName });
     return { ok: false, error: "empty_steps" };
   }
-  const repeatsRaw = Number(macro.repeats);
+  const repeatsRaw = Number(click.repeats);
   const repeats = Number.isFinite(repeatsRaw) && repeatsRaw > 0 ? Math.floor(repeatsRaw) : 1;
   return startExecutionOnTab({
     tabId,
-    macroId: macro.id,
-    macroName,
+    clickId: click.id,
+    clickName,
     repeats,
-    trackMoves: Boolean(macro.displayMoves ?? macro.trackMoves),
+    trackMoves: Boolean(click.displayMoves ?? click.trackMoves),
     steps
   });
 }

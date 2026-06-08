@@ -55,8 +55,8 @@ async function runExecution(payload) {
     return { ok: false, error: "already_running" };
   }
 
-  const macroId = typeof payload?.macroId === "string" ? payload.macroId : "";
-  const macroName = typeof payload?.macroName === "string" && payload.macroName.trim() ? payload.macroName.trim() : "macros";
+  const clickId = typeof payload?.clickId === "string" ? payload.clickId : "";
+  const clickName = typeof payload?.clickName === "string" && payload.clickName.trim() ? payload.clickName.trim() : "clicks";
   const repeats = Number.isFinite(Number(payload?.repeats)) && Number(payload.repeats) > 0 ? Math.floor(Number(payload.repeats)) : 1;
   const trackMoves = Boolean(payload?.trackMoves);
   const executionSpeedRaw = Number(payload?.executionSpeed);
@@ -85,8 +85,8 @@ async function runExecution(payload) {
 
   void chrome.runtime.sendMessage({
     type: "execution-progress",
-    macroId,
-    macroName,
+    clickId,
+    clickName,
     completedSteps,
     totalSteps,
     remainingMs: totalSteps * msPerStep
@@ -106,8 +106,8 @@ async function runExecution(payload) {
 
           void chrome.runtime.sendMessage({
             type: "execution-progress",
-            macroId,
-            macroName,
+            clickId,
+            clickName,
             completedSteps,
             totalSteps,
             remainingMs: remainingSteps * msPerStep
@@ -119,8 +119,8 @@ async function runExecution(payload) {
 
       void chrome.runtime.sendMessage({
         type: "execution-completed",
-        macroId,
-        macroName
+        clickId,
+        clickName
       });
     } catch (error) {
       const stopReason = error instanceof Error && error.message === "stopped"
@@ -130,8 +130,8 @@ async function runExecution(payload) {
           : "execution_error";
       void chrome.runtime.sendMessage({
         type: "execution-stopped",
-        macroId,
-        macroName,
+        clickId,
+        clickName,
         reason: stopReason
       });
     } finally {

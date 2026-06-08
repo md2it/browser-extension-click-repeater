@@ -65,7 +65,7 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
         ok: true,
         hasSession: true,
         mode: session.mode,
-        macroName: buildMacroName(session.domain),
+        clickName: buildClickName(session.domain),
         steps: Array.isArray(session.steps) ? session.steps : []
       });
     })().catch(() => sendResponse({ ok: false, error: "stop_failed" }));
@@ -110,8 +110,8 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   if (message.type === "execution-start") {
     (async () => {
-      const macroId = typeof message.macroId === "string" ? message.macroId : "";
-      const macroName = typeof message.macroName === "string" && message.macroName.trim() ? message.macroName.trim() : "macros";
+      const clickId = typeof message.clickId === "string" ? message.clickId : "";
+      const clickName = typeof message.clickName === "string" && message.clickName.trim() ? message.clickName.trim() : "clicks";
       const repeatsRaw = Number(message.repeats);
       const repeats = Number.isFinite(repeatsRaw) && repeatsRaw > 0 ? Math.floor(repeatsRaw) : 1;
       const tabId = Number.isInteger(message.tabId) ? message.tabId : null;
@@ -119,7 +119,7 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const executionSpeedRaw = Number(message.executionSpeed);
       const executionSpeed = [0.25, 0.5, 1, 2].includes(executionSpeedRaw) ? executionSpeedRaw : 1;
       const steps = Array.isArray(message.steps) ? message.steps.filter((step) => typeof step === "string" && step.trim()) : [];
-      const result = await startExecutionOnTab({ tabId, macroId, macroName, repeats, trackMoves, executionSpeed, steps });
+      const result = await startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMoves, executionSpeed, steps });
       sendResponse(result);
     })().catch(() => sendResponse({ ok: false, error: "execution_start_failed" }));
     return true;
@@ -141,9 +141,9 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       await stopExecutionWithEvent({
         kind: "stopped",
-        macroName: currentState.macroName
+        clickName: currentState.clickName
       });
-      sendResponse({ ok: true, wasRunning: true, stoppedMacroName: currentState.macroName });
+      sendResponse({ ok: true, wasRunning: true, stoppedClickName: currentState.clickName });
     })().catch(() => sendResponse({ ok: false, error: "execution_stop_failed" }));
     return true;
   }
@@ -186,7 +186,7 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       await stopExecutionWithEvent({
         kind: "completed",
-        macroName: currentState.macroName
+        clickName: currentState.clickName
       });
       const popupOpened = await openMainPopup(currentState.tabId);
       sendResponse({ ok: true, popupOpened });
@@ -205,7 +205,7 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return;
       }
       const kind = resolveStopEventKind(message);
-      await stopExecutionWithEvent({ kind, macroName: currentState.macroName });
+      await stopExecutionWithEvent({ kind, clickName: currentState.clickName });
       void showExecutionErrorNotice(currentState.tabId, kind);
       sendResponse({ ok: true });
     })().catch(() => sendResponse({ ok: false, error: "execution_stopped_failed" }));
@@ -224,7 +224,7 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
         ok: true,
         state: { isRunning: false },
         lastEvent: lastEvent?.kind
-          ? { kind: lastEvent.kind, macroName: lastEvent.macroName ?? null }
+          ? { kind: lastEvent.kind, clickName: lastEvent.clickName ?? null }
           : null
       });
     })().catch(() => sendResponse({ ok: false, state: { isRunning: false } }));
@@ -241,7 +241,7 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
       clearShortcutHintTimer();
       const tabId = Number.isInteger(sender?.tab?.id) ? sender.tab.id : null;
-      const result = await startDefaultMacroFromTab(tabId);
+      const result = await startDefaultClickFromTab(tabId);
       if (!result?.ok) {
         await syncActionBadge();
       }
@@ -264,9 +264,9 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
           // Ignore: tab may be closed or unavailable.
         }
       }
-      await stopExecutionWithEvent({ kind: "stopped", macroName: currentState.macroName });
+      await stopExecutionWithEvent({ kind: "stopped", clickName: currentState.clickName });
       void showExecutionErrorNotice(currentState.tabId, "stopped");
-      sendResponse({ ok: true, wasRunning: true, stoppedMacroName: currentState.macroName });
+      sendResponse({ ok: true, wasRunning: true, stoppedClickName: currentState.clickName });
     })().catch(() => sendResponse({ ok: false, error: "shortcut_stop_failed" }));
     return true;
   }
