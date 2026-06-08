@@ -14,11 +14,12 @@ Two modes are supported:
 
 The goal is to show every click and movement of the virtual pointer:
 
-- Minimal overlay using a filled Lucide mouse-pointer icon, `#f00`, 24x24 px
+- Minimal overlay using a Lucide mouse-pointer icon, white fill, `#012292` stroke, 36x36 px
+- The tip of the cursor (top-left corner of the icon) is aligned with the virtual cursor position
 - Represents virtual cursor movement
 - On click:
-   - Mouse-pointer changes for 50 ms to 36x36 px, then returns to the default state
-   - From the click spot, there should be diverging red circles
+   - Mouse-pointer changes for 50 ms to 54x54 px, then returns to the default state
+   - From the click spot, there should be diverging circles alternating `#012292` and white (5 circles total: blue, white, blue, white, blue)
 
 ## STEALTH
 

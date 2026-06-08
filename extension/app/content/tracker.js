@@ -53,7 +53,7 @@ function ensureTrackerElement() {
   element.style.pointerEvents = "none";
   element.style.userSelect = "none";
   element.style.zIndex = "2147483647";
-  element.style.transform = "translate(-50%, -50%)";
+  element.style.transform = "translate(-16.67%, -16.67%)";
   element.style.transition = "left 16ms linear, top 16ms linear, width 50ms linear, height 50ms linear, color 50ms linear";
   element.innerHTML = trackerDefaultIconSvg();
   document.documentElement.append(element);
@@ -90,7 +90,8 @@ function moveTracker(point) {
 
 function spawnClickRipple(point) {
   const normalized = normalizeViewportPoint(point);
-  for (let i = 0; i < 3; i += 1) {
+  const colors = ["#012292", "white", "#012292", "white", "#012292"];
+  for (let i = 0; i < colors.length; i += 1) {
     const circle = document.createElement("div");
     circle.style.cssText = [
       "position:fixed",
@@ -99,7 +100,7 @@ function spawnClickRipple(point) {
       "width:0px",
       "height:0px",
       "border-radius:50%",
-      "border:2px solid #ff0000",
+      `border:2px solid ${colors[i]}`,
       "transform:translate(-50%,-50%)",
       "pointer-events:none",
       "user-select:none",
