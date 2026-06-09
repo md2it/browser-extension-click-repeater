@@ -90,7 +90,7 @@ function moveTracker(point) {
 
 function spawnClickRipple(point) {
   const normalized = normalizeViewportPoint(point);
-  const colors = ["#012292", "white", "#012292", "white", "#012292"];
+  const colors = ["#012292", "white"];
   for (let i = 0; i < colors.length; i += 1) {
     const circle = document.createElement("div");
     circle.style.cssText = [
