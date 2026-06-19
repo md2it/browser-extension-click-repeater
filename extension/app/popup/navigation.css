@@ -4,6 +4,10 @@
   display: flex;
 }
 
+[dir="rtl"] .popup-shell {
+  flex-direction: row-reverse;
+}
+
 .popup-menu {
   flex: 0 0 46px;
   display: flex;
@@ -73,8 +77,8 @@
 }
 
 [dir="rtl"] .popup-menu-btn::after {
-  right: calc(100% + 7px);
-  left: auto;
+  right: auto;
+  left: calc(100% + 7px);
 }
 
 .popup-content {
