@@ -118,8 +118,9 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const trackMoves = Boolean(message.trackMoves);
       const executionSpeedRaw = Number(message.executionSpeed);
       const executionSpeed = [0.25, 0.5, 1, 2].includes(executionSpeedRaw) ? executionSpeedRaw : 1;
+      const clickSound = message.clickSound !== false;
       const steps = Array.isArray(message.steps) ? message.steps.filter((step) => typeof step === "string" && step.trim()) : [];
-      const result = await startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMoves, executionSpeed, steps });
+      const result = await startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMoves, executionSpeed, clickSound, steps });
       sendResponse(result);
     })().catch(() => sendResponse({ ok: false, error: "execution_start_failed" }));
     return true;

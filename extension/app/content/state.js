@@ -31,7 +31,8 @@ const executionState = {
   lastTarget: null,
   lastDelayMs: null,
   trackMoves: false,
-  executionSpeed: 1
+  executionSpeed: 1,
+  clickSound: true
 };
 
 const trackerState = {

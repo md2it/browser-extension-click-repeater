@@ -20,6 +20,11 @@
 	- This is an extension-wide setting and applies to all
 	- The setting affects only the additional pacing delay between steps and does not change existing execution intervals
 	- Specific intervals and their application order: [Execution mode](../functional/execute.md#execution-speed)
+- "Click sound"
+	- Toggler
+	- Default: on
+	- Plays a short mouse-click sound for every executed click
+	- Details: [Click sound](../functional/sound.md)
 - "Skip explanations for new recordings"
 	- Toggler
 	- Default: off

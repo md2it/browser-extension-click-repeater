@@ -443,6 +443,11 @@ refs.settingExecutionSpeed.addEventListener("click", async () => {
   await persistSettings();
 });
 
+refs.settingClickSound.addEventListener("change", async () => {
+  settings.clickSound = refs.settingClickSound.checked;
+  await persistSettings();
+});
+
 refs.settingSkipNewRecording.addEventListener("change", async () => {
   settings.skipNewClickExplanation = refs.settingSkipNewRecording.checked;
   await persistSettings();

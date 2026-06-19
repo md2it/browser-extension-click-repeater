@@ -1,5 +1,5 @@
 
-async function startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMoves, executionSpeed, steps }) {
+async function startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMoves, executionSpeed, clickSound = true, steps }) {
   const currentState = await getRuntimeExecutionState();
   if (currentState?.isRunning) {
     return { ok: false, error: "already_running", state: currentState };
@@ -44,7 +44,8 @@ async function startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMo
       repeats,
       steps,
       trackMoves,
-      executionSpeed: executionSpeed ?? 1
+      executionSpeed: executionSpeed ?? 1,
+      clickSound
     });
     if (!tabResponse?.ok) {
       await clearExecutionState();

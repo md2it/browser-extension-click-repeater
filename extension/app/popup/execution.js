@@ -138,7 +138,8 @@ async function startExecution(macroId) {
     tabId: activeTab.id,
     steps,
     trackMoves: getDisplayMovesValue(macro),
-    executionSpeed: settings.executionSpeed
+    executionSpeed: settings.executionSpeed,
+    clickSound: settings.clickSound
   });
 
   if (!response?.ok) {

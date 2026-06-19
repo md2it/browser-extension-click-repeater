@@ -8,6 +8,7 @@ const EXECUTION_SPEED_VALUES = [0.25, 0.5, 1, 2];
 
 const settings = {
   executionSpeed: 1,
+  clickSound: true,
   skipNewClickExplanation: false,
   skipDisplayMovesExplanation: false,
   skipModeExplanation: false,
@@ -68,6 +69,7 @@ const refs = {
   modePositionBtn: document.getElementById("mode-position-btn"),
   modeElementBtn: document.getElementById("mode-element-btn"),
   settingExecutionSpeed: document.getElementById("setting-execution-speed"),
+  settingClickSound: document.getElementById("setting-click-sound"),
   languageSelector: document.getElementById("language-selector"),
   settingSkipNewRecording: document.getElementById("setting-skip-new-recording"),
   settingSkipDisplayMoves: document.getElementById("setting-skip-display-moves"),

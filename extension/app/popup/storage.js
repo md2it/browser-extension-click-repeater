@@ -147,6 +147,9 @@ async function readSettingsFromStorage() {
       if (EXECUTION_SPEED_VALUES.includes(stored.executionSpeed)) {
         settings.executionSpeed = stored.executionSpeed;
       }
+      if (typeof stored.clickSound === "boolean") {
+        settings.clickSound = stored.clickSound;
+      }
       if (typeof stored.skipNewClickExplanation === "boolean") {
         settings.skipNewClickExplanation = stored.skipNewClickExplanation;
       }
@@ -169,6 +172,7 @@ async function persistSettings() {
 
 function syncSettingsUI() {
   refs.settingExecutionSpeed.textContent = `${settings.executionSpeed}×`;
+  refs.settingClickSound.checked = settings.clickSound;
   refs.settingSkipNewRecording.checked = settings.skipNewClickExplanation;
   refs.settingSkipDisplayMoves.checked = settings.skipDisplayMovesExplanation;
   refs.settingSkipMode.checked = settings.skipModeExplanation;

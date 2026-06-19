@@ -159,12 +159,16 @@ async function startDefaultClickFromTab(tabId) {
   }
   const repeatsRaw = Number(click.repeats);
   const repeats = Number.isFinite(repeatsRaw) && repeatsRaw > 0 ? Math.floor(repeatsRaw) : 1;
+  const settingsData = await ext.storage.local.get("popup_settings");
+  const storedSettings = settingsData?.popup_settings;
   return startExecutionOnTab({
     tabId,
     clickId: click.id,
     clickName,
     repeats,
     trackMoves: Boolean(click.displayMoves ?? click.trackMoves),
+    executionSpeed: [0.25, 0.5, 1, 2].includes(storedSettings?.executionSpeed) ? storedSettings.executionSpeed : 1,
+    clickSound: storedSettings?.clickSound !== false,
     steps
   });
 }
