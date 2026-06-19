@@ -79,6 +79,7 @@ async function runStep(token, fromPoint, step) {
 
   const clickPoint = applyClickOffset(stepPoint);
   const path = buildHumanPath(fromPoint, clickPoint);
+  animateTrackerMovement(fromPoint, clickPoint, path.length * profile.moveIntervalMs);
   let previousPoint = fromPoint;
 
   for (const point of path) {

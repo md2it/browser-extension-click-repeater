@@ -31,32 +31,42 @@ function ensureTrackerElement() {
     return;
   }
 
-  if (trackerState.element instanceof HTMLElement) {
+  if (
+    trackerState.motionElement instanceof HTMLElement &&
+    trackerState.element instanceof HTMLElement
+  ) {
     return;
   }
 
   const existing = document.getElementById(TRACKER_ELEMENT_ID);
   if (existing instanceof HTMLElement) {
-    trackerState.element = existing;
-    setTrackerDefaultState();
-    return;
+    existing.remove();
   }
 
+  const motionElement = document.createElement("div");
+  motionElement.id = TRACKER_ELEMENT_ID;
+  motionElement.style.position = "fixed";
+  motionElement.style.left = "0px";
+  motionElement.style.top = "0px";
+  motionElement.style.width = "0px";
+  motionElement.style.height = "0px";
+  motionElement.style.pointerEvents = "none";
+  motionElement.style.userSelect = "none";
+  motionElement.style.zIndex = "2147483647";
+  motionElement.style.willChange = "transform";
+
   const element = document.createElement("div");
-  element.id = TRACKER_ELEMENT_ID;
-  element.style.position = "fixed";
-  element.style.left = "0px";
-  element.style.top = "0px";
   element.style.width = `${TRACKER_DEFAULT_SIZE}px`;
   element.style.height = `${TRACKER_DEFAULT_SIZE}px`;
   element.style.color = TRACKER_DEFAULT_COLOR;
   element.style.pointerEvents = "none";
   element.style.userSelect = "none";
-  element.style.zIndex = "2147483647";
   element.style.transform = "translate(-16.67%, -16.67%)";
-  element.style.transition = "left 16ms linear, top 16ms linear, width 50ms linear, height 50ms linear, color 50ms linear";
+  element.style.transition = "width 50ms linear, height 50ms linear, color 50ms linear";
   element.innerHTML = trackerDefaultIconSvg();
-  document.documentElement.append(element);
+  motionElement.append(element);
+  document.documentElement.append(motionElement);
+  trackerState.motionElement = motionElement;
   trackerState.element = element;
   setTrackerDefaultState();
 }
@@ -67,10 +77,11 @@ function removeTrackerElement() {
     trackerState.pulseTimerId = null;
   }
 
-  if (trackerState.element instanceof HTMLElement) {
-    trackerState.element.remove();
-    trackerState.element = null;
+  if (trackerState.motionElement instanceof HTMLElement) {
+    trackerState.motionElement.remove();
   }
+  trackerState.motionElement = null;
+  trackerState.element = null;
 }
 
 function moveTracker(point) {
@@ -79,13 +90,40 @@ function moveTracker(point) {
   }
 
   ensureTrackerElement();
-  if (!(trackerState.element instanceof HTMLElement)) {
+  if (!(trackerState.motionElement instanceof HTMLElement)) {
     return;
   }
 
   const normalized = normalizeViewportPoint(point);
-  trackerState.element.style.left = `${normalized.x}px`;
-  trackerState.element.style.top = `${normalized.y}px`;
+  trackerState.motionElement.style.transform = `translate3d(${normalized.x}px, ${normalized.y}px, 0)`;
+}
+
+function animateTrackerMovement(fromPoint, toPoint, durationMs) {
+  if (!executionState.trackMoves) {
+    return;
+  }
+
+  ensureTrackerElement();
+  if (!(trackerState.motionElement instanceof HTMLElement)) {
+    return;
+  }
+
+  const from = normalizeViewportPoint(fromPoint);
+  const to = normalizeViewportPoint(toPoint);
+  const fromTransform = `translate3d(${from.x}px, ${from.y}px, 0)`;
+  const toTransform = `translate3d(${to.x}px, ${to.y}px, 0)`;
+
+  trackerState.motionElement.style.transform = toTransform;
+  trackerState.motionElement.animate(
+    [
+      { transform: fromTransform },
+      { transform: toTransform }
+    ],
+    {
+      duration: Math.max(0, durationMs),
+      easing: "linear"
+    }
+  );
 }
 
 function spawnClickRipple(point) {

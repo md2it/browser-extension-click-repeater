@@ -176,7 +176,6 @@ function dispatchMouseMove(point, previousPoint) {
       buttons: 0
     })
   );
-  moveTracker(normalized);
   return { point: normalized, target };
 }
 

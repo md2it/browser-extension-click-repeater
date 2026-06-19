@@ -72,6 +72,7 @@ const executionState = {
 };
 
 const trackerState = {
+  motionElement: null,
   element: null,
   pulseTimerId: null
 };

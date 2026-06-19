@@ -13,6 +13,13 @@ Version logic:
 - Click sound
 - Additional delete button in record card
 - RTL menu will be on the left side too
+- Execution speeds updated to 0.5×, 1×, 4×, and 10×
+- Added a high-speed 10× execution mode
+- Execution speed now controls the complete playback pace
+- Smoother and more consistent cursor movement
+- Improved cursor animation at high execution speeds
+- Improved movement trajectory calculation for short and long distances
+- Improved click reliability for dynamic and hover-sensitive page elements
 
 ### 1.0.4
 - Improved click visualization
