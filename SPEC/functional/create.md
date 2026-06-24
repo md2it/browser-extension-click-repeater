@@ -13,27 +13,29 @@
 4. The popup closes when the mode starts
 
 ### During the mode
-- The user clicks elements on the page
+- The user performs supported actions on the page
 - The extension records:
-   - Click coordinates
-   - Selectors of clicked elements
+   - Actions described in SPEC/functional/actions.md
+   - Click coordinates, for click actions
+   - Selectors of clicked elements, for click actions
+   - Keyboard event data, for key press and key release actions
 
 ### Event listeners
-- The `click` listener is enabled only during recording
+- Action listeners are enabled only during recording
 - `recording-click` is not sent outside recording
 - Selectors are not generated outside recording
-- The listener is removed after recording ends
-- `keydown/keyup` events do not record clicks
+- Listeners are removed after recording ends
+- `keydown/keyup` events record only keyboard actions
 - Listeners do not block website events
 - Do not use `stopPropagation`
 - Do not use `preventDefault`
 
 ### Ending recording mode
-- After finishing the clicks, the user clicks the extension icon again to end the mode
+- After finishing the actions, the user clicks the extension icon again to end the mode
 - The popup immediately opens the "Edit" window with prefilled steps:
    - Name:
       - Prefilled by default as `domain + date + time`, for example `google.com 2026-06-02 19:34`. Exclude http, www, /, etc.
       - The text is selected so the user can immediately enter a custom name
    - Repeat = 1
    - All other values use their defaults
-   - The user can work with this window in the same way as when editing existing clicks
+   - The user can work with this window in the same way as when editing existing recorded scenarios

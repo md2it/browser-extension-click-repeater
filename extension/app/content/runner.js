@@ -70,11 +70,102 @@ function releaseClickSound() {
   }
 }
 
-async function runStep(token, fromPoint, step) {
+function normalizeKeyboardAction(step) {
+  if (!step || typeof step !== "object" || (step.type !== "keydown" && step.type !== "keyup")) {
+    return null;
+  }
+
+  const key = typeof step.key === "string" ? step.key : "";
+  const code = typeof step.code === "string" ? step.code : "";
+  if (!key && !code) {
+    return null;
+  }
+
+  const locationRaw = Number(step.location);
+  const editState = step.editState && typeof step.editState === "object"
+    ? {
+      kind: step.editState.kind === "contenteditable" ? "contenteditable" : "form-field",
+      value: typeof step.editState.value === "string" ? step.editState.value : "",
+      selectionStart: Number.isInteger(step.editState.selectionStart) ? step.editState.selectionStart : null,
+      selectionEnd: Number.isInteger(step.editState.selectionEnd) ? step.editState.selectionEnd : null
+    }
+    : null;
+  return {
+    type: step.type,
+    key,
+    code,
+    altKey: Boolean(step.altKey),
+    ctrlKey: Boolean(step.ctrlKey),
+    metaKey: Boolean(step.metaKey),
+    shiftKey: Boolean(step.shiftKey),
+    location: Number.isFinite(locationRaw) ? locationRaw : 0,
+    repeat: Boolean(step.repeat),
+    isComposing: Boolean(step.isComposing),
+    targetSelector: typeof step.targetSelector === "string" ? step.targetSelector.trim() : "",
+    editState,
+    frameId: Number.isInteger(step.frameId) ? step.frameId : null,
+    documentId: typeof step.documentId === "string" ? step.documentId : null
+  };
+}
+
+function normalizeExecutionAction(step) {
+  if (typeof step === "string") {
+    const target = step.trim();
+    return target ? target : null;
+  }
+
+  const keyboardAction = normalizeKeyboardAction(step);
+  if (keyboardAction) {
+    return keyboardAction;
+  }
+
+  if (!step || typeof step !== "object" || step.type !== "click") {
+    return null;
+  }
+
+  const target = typeof step.target === "string" ? step.target.trim() : "";
+  const targetMode = step.targetMode === "element" ? "element" : step.targetMode === "position" ? "position" : null;
+  return target ? {
+    type: "click",
+    target,
+    targetMode,
+    frameId: Number.isInteger(step.frameId) ? step.frameId : null,
+    documentId: typeof step.documentId === "string" ? step.documentId : null
+  } : null;
+}
+
+function isKeyboardAction(action) {
+  return action && typeof action === "object" && (action.type === "keydown" || action.type === "keyup");
+}
+
+function isClickAction(action) {
+  return typeof action === "string" || (action && typeof action === "object" && action.type === "click");
+}
+
+function clickTargetNotFoundError(action) {
+  if (action?.targetMode === "element") {
+    return new Error("element_target_not_found");
+  }
+  if (action?.targetMode === "position") {
+    return new Error("position_target_not_found");
+  }
+  return new Error("target_not_found");
+}
+
+function resolveClickTarget(point, action) {
+  const target = getPointTarget(point);
+  if (target) {
+    return target;
+  }
+
+  return action?.targetMode === "position" ? document.documentElement : null;
+}
+
+async function runClickAction(token, fromPoint, action) {
   const profile = getExecutionSpeedProfile();
-  const stepPoint = resolveStepPoint(step);
+  const stepPoint = resolveStepPoint(action);
   if (!stepPoint) {
-    throw new Error("target_not_found");
+    throw clickTargetNotFoundError(action);
   }
 
   const clickPoint = applyClickOffset(stepPoint);
@@ -96,9 +187,9 @@ async function runStep(token, fromPoint, step) {
     throw new Error("stopped");
   }
 
-  let clickTarget = getPointTarget(clickPoint);
+  let clickTarget = resolveClickTarget(clickPoint, action);
   if (!clickTarget) {
-    throw new Error("target_not_found");
+    throw clickTargetNotFoundError(action);
   }
 
   if (clickTarget !== executionState.lastTarget) {
@@ -111,9 +202,9 @@ async function runStep(token, fromPoint, step) {
     throw new Error("stopped");
   }
 
-  const stabilizedTarget = getPointTarget(clickPoint);
+  const stabilizedTarget = resolveClickTarget(clickPoint, action);
   if (!stabilizedTarget) {
-    throw new Error("target_not_found");
+    throw clickTargetNotFoundError(action);
   }
   if (stabilizedTarget !== clickTarget) {
     transitionTarget(clickTarget, stabilizedTarget, clickPoint);
@@ -135,6 +226,29 @@ async function runStep(token, fromPoint, step) {
   return clickPoint;
 }
 
+async function runKeyboardAction(token, fromPoint, action) {
+  const profile = getExecutionSpeedProfile();
+  if (shouldStop(token)) {
+    throw new Error("stopped");
+  }
+
+  dispatchKeyboardAction(action);
+  await sleep(randomDelay(profile.stepMinMs, profile.stepMaxMs));
+  if (shouldStop(token)) {
+    throw new Error("stopped");
+  }
+
+  return fromPoint;
+}
+
+function runAction(token, fromPoint, action) {
+  if (isKeyboardAction(action)) {
+    return runKeyboardAction(token, fromPoint, action);
+  }
+
+  return runClickAction(token, fromPoint, action);
+}
+
 async function runExecution(payload) {
   if (executionState.isRunning) {
     return { ok: false, error: "already_running" };
@@ -146,10 +260,11 @@ async function runExecution(payload) {
   const trackMoves = Boolean(payload?.trackMoves);
   const executionSpeed = normalizeExecutionSpeed(payload?.executionSpeed);
   const clickSound = payload?.clickSound !== false;
-  const steps = Array.isArray(payload?.steps) ? payload.steps.filter((step) => typeof step === "string" && step.trim()) : [];
+  const steps = Array.isArray(payload?.steps) ? payload.steps.map(normalizeExecutionAction).filter(Boolean) : [];
   if (steps.length === 0) {
     return { ok: false, error: "empty_steps" };
   }
+  const hasClickActions = steps.some(isClickAction);
 
   executionState.isRunning = true;
   executionState.stopRequested = false;
@@ -158,13 +273,15 @@ async function runExecution(payload) {
   executionState.trackMoves = trackMoves;
   executionState.executionSpeed = executionSpeed;
   executionState.clickSound = clickSound;
-  if (clickSound) {
+  if (clickSound && hasClickActions) {
     prepareClickSound();
   }
   executionState.lastPoint = executionState.lastPoint ?? getInitialPoint();
   executionState.lastTarget = getPointTarget(executionState.lastPoint);
   executionState.lastDelayMs = null;
-  moveTracker(executionState.lastPoint);
+  if (hasClickActions) {
+    moveTracker(executionState.lastPoint);
+  }
   startExecutionClickListener();
   const totalSteps = repeats * steps.length;
   let completedSteps = 0;
@@ -195,7 +312,7 @@ async function runExecution(payload) {
             throw new Error("stopped");
           }
 
-          executionState.lastPoint = await runStep(token, executionState.lastPoint ?? getInitialPoint(), step);
+          executionState.lastPoint = await runAction(token, executionState.lastPoint ?? getInitialPoint(), step);
           completedSteps += 1;
           const remainingSteps = Math.max(0, totalSteps - completedSteps);
 
@@ -208,7 +325,9 @@ async function runExecution(payload) {
             remainingMs: remainingSteps * msPerStep
           });
 
-          executionState.lastTarget = getPointTarget(executionState.lastPoint) || executionState.lastTarget;
+          if (isClickAction(step)) {
+            executionState.lastTarget = getPointTarget(executionState.lastPoint) || executionState.lastTarget;
+          }
         }
       }
 
@@ -220,8 +339,12 @@ async function runExecution(payload) {
     } catch (error) {
       const stopReason = error instanceof Error && error.message === "stopped"
         ? "user_stop"
-        : error instanceof Error && error.message === "target_not_found"
-          ? "target_not_found"
+        : error instanceof Error && (
+          error.message === "target_not_found" ||
+          error.message === "element_target_not_found" ||
+          error.message === "position_target_not_found"
+        )
+          ? error.message
           : "execution_error";
       void chrome.runtime.sendMessage({
         type: "execution-stopped",

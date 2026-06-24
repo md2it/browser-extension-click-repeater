@@ -91,7 +91,63 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ ok: true, ignored: true, reason: "invalid_data" });
         return;
       }
-      steps.push({ position, selector });
+      steps.push({
+        type: "click",
+        position,
+        selector,
+        frameId: Number.isInteger(sender.frameId) ? sender.frameId : null,
+        documentId: typeof sender.documentId === "string" ? sender.documentId : null
+      });
+      await writeSession({ ...session, steps });
+      sendResponse({ ok: true });
+    })().catch(() => sendResponse({ ok: false, error: "record_failed" }));
+    return true;
+  }
+  if (message.type === "recording-keyboard") {
+    (async () => {
+      const session = await readSession();
+      if (!session?.isActive) {
+        sendResponse({ ok: true, ignored: true, reason: "inactive" });
+        return;
+      }
+      if (!sender?.tab || sender.tab.id !== session.tabId) {
+        sendResponse({ ok: true, ignored: true, reason: "other_tab" });
+        return;
+      }
+      const actionType = message.actionType === "keyup" ? "keyup" : message.actionType === "keydown" ? "keydown" : "";
+      const key = typeof message.key === "string" ? message.key : "";
+      const code = typeof message.code === "string" ? message.code : "";
+      if (!actionType || (!key && !code)) {
+        sendResponse({ ok: true, ignored: true, reason: "invalid_data" });
+        return;
+      }
+      const locationRaw = Number(message.location);
+      const selector = typeof message.selector === "string" ? message.selector.trim() : "";
+      const editState = message.editState && typeof message.editState === "object"
+        ? {
+          kind: message.editState.kind === "contenteditable" ? "contenteditable" : "form-field",
+          value: typeof message.editState.value === "string" ? message.editState.value : "",
+          selectionStart: Number.isInteger(message.editState.selectionStart) ? message.editState.selectionStart : null,
+          selectionEnd: Number.isInteger(message.editState.selectionEnd) ? message.editState.selectionEnd : null
+        }
+        : null;
+      const steps = Array.isArray(session.steps) ? session.steps : [];
+      steps.push({
+        type: actionType,
+        key,
+        code,
+        altKey: Boolean(message.altKey),
+        ctrlKey: Boolean(message.ctrlKey),
+        metaKey: Boolean(message.metaKey),
+        shiftKey: Boolean(message.shiftKey),
+        location: Number.isFinite(locationRaw) ? locationRaw : 0,
+        repeat: Boolean(message.repeat),
+        isComposing: Boolean(message.isComposing),
+        targetSelector: selector,
+        editState,
+        frameId: Number.isInteger(sender.frameId) ? sender.frameId : null,
+        documentId: typeof sender.documentId === "string" ? sender.documentId : null
+      });
       await writeSession({ ...session, steps });
       sendResponse({ ok: true });
     })().catch(() => sendResponse({ ok: false, error: "record_failed" }));
@@ -118,7 +174,18 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const trackMoves = Boolean(message.trackMoves);
       const executionSpeed = normalizeExecutionSpeed(message.executionSpeed);
       const clickSound = message.clickSound !== false;
-      const steps = Array.isArray(message.steps) ? message.steps.filter((step) => typeof step === "string" && step.trim()) : [];
+      const steps = Array.isArray(message.steps) ? message.steps.filter((step) => {
+        if (typeof step === "string") {
+          return Boolean(step.trim());
+        }
+        if (!step || typeof step !== "object") {
+          return false;
+        }
+        if (step.type === "click") {
+          return typeof step.target === "string" && Boolean(step.target.trim());
+        }
+        return Boolean(normalizeKeyboardAction(step));
+      }) : [];
       const result = await startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMoves, executionSpeed, clickSound, steps });
       sendResponse(result);
     })().catch(() => sendResponse({ ok: false, error: "execution_start_failed" }));

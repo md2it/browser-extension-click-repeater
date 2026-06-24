@@ -19,6 +19,71 @@ function getDomainFromUrl(rawUrl) {
   }
 }
 
+function normalizeKeyboardAction(step) {
+  if (!step || typeof step !== "object" || (step.type !== "keydown" && step.type !== "keyup")) {
+    return null;
+  }
+
+  const key = typeof step.key === "string" ? step.key : "";
+  const code = typeof step.code === "string" ? step.code : "";
+  if (!key && !code) {
+    return null;
+  }
+
+  const locationRaw = Number(step.location);
+  const editState = step.editState && typeof step.editState === "object"
+    ? {
+      kind: step.editState.kind === "contenteditable" ? "contenteditable" : "form-field",
+      value: typeof step.editState.value === "string" ? step.editState.value : "",
+      selectionStart: Number.isInteger(step.editState.selectionStart) ? step.editState.selectionStart : null,
+      selectionEnd: Number.isInteger(step.editState.selectionEnd) ? step.editState.selectionEnd : null
+    }
+    : null;
+  return {
+    type: step.type,
+    key,
+    code,
+    altKey: Boolean(step.altKey),
+    ctrlKey: Boolean(step.ctrlKey),
+    metaKey: Boolean(step.metaKey),
+    shiftKey: Boolean(step.shiftKey),
+    location: Number.isFinite(locationRaw) ? locationRaw : 0,
+    repeat: Boolean(step.repeat),
+    isComposing: Boolean(step.isComposing),
+    targetSelector: typeof step.targetSelector === "string" ? step.targetSelector.trim() : "",
+    editState,
+    frameId: Number.isInteger(step.frameId) ? step.frameId : null,
+    documentId: typeof step.documentId === "string" ? step.documentId : null
+  };
+}
+
+function normalizeStepForExecution(step, clickMode) {
+  if (typeof step === "string") {
+    const target = step.trim();
+    return target ? target : null;
+  }
+
+  const keyboardAction = normalizeKeyboardAction(step);
+  if (keyboardAction) {
+    return keyboardAction;
+  }
+
+  if (!step || typeof step !== "object") {
+    return null;
+  }
+
+  const position = typeof step.position === "string" ? step.position.trim() : "";
+  const selector = typeof step.selector === "string" ? step.selector.trim() : "";
+  const target = clickMode === "element" ? selector : position;
+  return target ? {
+    type: "click",
+    target,
+    targetMode: clickMode,
+    frameId: Number.isInteger(step.frameId) ? step.frameId : null,
+    documentId: typeof step.documentId === "string" ? step.documentId : null
+  } : null;
+}
+
 async function readSession() {
   const data = await ext.storage.local.get(RECORDING_SESSION_KEY);
   return data?.[RECORDING_SESSION_KEY] ?? null;

@@ -142,14 +142,8 @@ async function startDefaultClickFromTab(tabId) {
   const clickMode = click.mode === "element" ? "element" : "position";
   const steps = Array.isArray(click.steps)
     ? click.steps
-      .map((step) => {
-        if (typeof step === "string") return step;
-        if (step && typeof step === "object") {
-          return clickMode === "element" ? (step.selector ?? "") : (step.position ?? "");
-        }
-        return "";
-      })
-      .filter((step) => step && step.trim())
+      .map((step) => normalizeStepForExecution(step, clickMode))
+      .filter(Boolean)
     : [];
   const clickName = typeof click.name === "string" && click.name.trim() ? click.name.trim() : "clicks";
   if (!steps.length) {

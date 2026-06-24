@@ -37,7 +37,8 @@ async function startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMo
   await syncActionBadge();
 
   try {
-    const tabResponse = await ext.tabs.sendMessage(tabId, {
+    const targetFrameId = getExecutionFrameId(steps);
+    const executionMessage = {
       type: "execution-run",
       clickId,
       clickName,
@@ -46,7 +47,10 @@ async function startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMo
       trackMoves,
       executionSpeed: executionSpeed ?? 1,
       clickSound
-    });
+    };
+    const tabResponse = Number.isInteger(targetFrameId)
+      ? await ext.tabs.sendMessage(tabId, executionMessage, { frameId: targetFrameId })
+      : await ext.tabs.sendMessage(tabId, executionMessage);
     if (!tabResponse?.ok) {
       await clearExecutionState();
       await syncActionBadge();
@@ -72,6 +76,22 @@ async function startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMo
       remainingMs: state.remainingMs
     }
   };
+}
+
+function getExecutionFrameId(steps) {
+  if (!Array.isArray(steps)) {
+    return null;
+  }
+
+  const frameIds = steps
+    .map((step) => Number.isInteger(step?.frameId) ? step.frameId : null)
+    .filter((frameId) => Number.isInteger(frameId));
+  if (!frameIds.length) {
+    return null;
+  }
+
+  const firstFrameId = frameIds[0];
+  return frameIds.every((frameId) => frameId === firstFrameId) ? firstFrameId : null;
 }
 
 async function setActionBadgeText(text) {
@@ -116,8 +136,12 @@ function resolveStopEventKind(message) {
     return "user-click";
   }
   switch (message?.reason) {
-    case "target_not_found":
+    case "element_target_not_found":
       return "element-not-found";
+    case "position_target_not_found":
+      return "position-not-found";
+    case "target_not_found":
+      return "target-not-found";
     case "user_stop":
       return "stopped";
     default:
@@ -150,7 +174,7 @@ async function sendRecordingListenerMessage(tabId, message) {
 
   try {
     await ext.scripting.executeScript({
-      target: { tabId },
+      target: { tabId, allFrames: true },
       files: [
         "lib/icons/lucide/icons.js",
         "lib/our/api.js",

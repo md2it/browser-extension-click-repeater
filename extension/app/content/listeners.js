@@ -42,24 +42,60 @@ function handleRecordingClick(event) {
   });
 }
 
-function startRecordingClickListener() {
-  recordingState.isActive = true;
-
-  if (isRecordingClickListenerAttached) {
+function handleRecordingKeyboardEvent(event) {
+  if (!recordingState.isActive) {
     return;
   }
 
-  document.addEventListener("click", handleRecordingClick, true);
-  isRecordingClickListenerAttached = true;
+  const target = getEventElement(event) || getKeyboardEventTarget();
+  const editableTarget = getEditableKeyboardTarget(target);
+  const selectorTarget = editableTarget || target;
+  const selector = selectorTarget instanceof Element ? buildSelector(selectorTarget) : "";
+  const editState = editableTarget ? readEditableKeyboardState(editableTarget) : null;
+
+  void chrome.runtime.sendMessage({
+    type: "recording-keyboard",
+    actionType: event.type,
+    key: event.key,
+    code: event.code,
+    altKey: event.altKey,
+    ctrlKey: event.ctrlKey,
+    metaKey: event.metaKey,
+    shiftKey: event.shiftKey,
+    location: event.location,
+    repeat: event.repeat,
+    isComposing: event.isComposing,
+    selector,
+    editState
+  });
 }
 
-function stopRecordingClickListener() {
-  recordingState.isActive = false;
+function startRecordingListeners() {
+  recordingState.isActive = true;
 
   if (!isRecordingClickListenerAttached) {
-    return;
+    document.addEventListener("click", handleRecordingClick, true);
+    isRecordingClickListenerAttached = true;
   }
 
-  document.removeEventListener("click", handleRecordingClick, true);
-  isRecordingClickListenerAttached = false;
+  if (!isRecordingKeyboardListenerAttached) {
+    window.addEventListener("keydown", handleRecordingKeyboardEvent, true);
+    window.addEventListener("keyup", handleRecordingKeyboardEvent, true);
+    isRecordingKeyboardListenerAttached = true;
+  }
+}
+
+function stopRecordingListeners() {
+  recordingState.isActive = false;
+
+  if (isRecordingClickListenerAttached) {
+    document.removeEventListener("click", handleRecordingClick, true);
+    isRecordingClickListenerAttached = false;
+  }
+
+  if (isRecordingKeyboardListenerAttached) {
+    window.removeEventListener("keydown", handleRecordingKeyboardEvent, true);
+    window.removeEventListener("keyup", handleRecordingKeyboardEvent, true);
+    isRecordingKeyboardListenerAttached = false;
+  }
 }

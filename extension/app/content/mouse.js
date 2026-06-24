@@ -43,18 +43,21 @@ function getRandomPointInElement(element) {
 }
 
 function resolveStepPoint(step) {
-  const coordinatePoint = parseCoordinateStep(step);
+  const targetStep = step && typeof step === "object" && step.type === "click"
+    ? step.target
+    : step;
+  const coordinatePoint = parseCoordinateStep(targetStep);
   if (coordinatePoint) {
     return coordinatePoint;
   }
 
-  if (typeof step !== "string" || !step.trim()) {
+  if (typeof targetStep !== "string" || !targetStep.trim()) {
     return null;
   }
 
   let element = null;
   try {
-    element = document.querySelector(step);
+    element = document.querySelector(targetStep);
   } catch {
     return null;
   }
@@ -151,6 +154,398 @@ function buildPointerEvent(type, init) {
 
 function buildMouseEvent(type, init) {
   return applyMovement(new MouseEvent(type, init), init);
+}
+
+function getKeyboardEventTarget() {
+  const activeElement = document.activeElement;
+  return activeElement instanceof Element ? activeElement : document;
+}
+
+function getKeyboardTargetBySelector(selector) {
+  if (typeof selector !== "string" || !selector.trim()) {
+    return null;
+  }
+
+  try {
+    const target = document.querySelector(selector);
+    return target instanceof Element ? target : null;
+  } catch {
+    return null;
+  }
+}
+
+function getKeyboardActionTarget(action) {
+  return getKeyboardTargetBySelector(action.targetSelector) || getKeyboardEventTarget();
+}
+
+function isTextEditableElement(element) {
+  if (element instanceof HTMLTextAreaElement) {
+    return !element.disabled && !element.readOnly;
+  }
+
+  if (!(element instanceof HTMLInputElement) || element.disabled || element.readOnly) {
+    return false;
+  }
+
+  const textTypes = new Set([
+    "email",
+    "number",
+    "password",
+    "search",
+    "tel",
+    "text",
+    "url"
+  ]);
+  return textTypes.has(element.type);
+}
+
+function getEditableKeyboardTarget(target) {
+  if (target instanceof Element && isTextEditableElement(target)) {
+    return target;
+  }
+
+  if (target instanceof Element) {
+    const editable = target.closest("[contenteditable]");
+    if (editable instanceof HTMLElement && editable.isContentEditable) {
+      return editable;
+    }
+  }
+
+  return null;
+}
+
+function readEditableKeyboardState(target) {
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    return {
+      kind: "form-field",
+      value: target.value,
+      selectionStart: Number.isInteger(target.selectionStart) ? target.selectionStart : target.value.length,
+      selectionEnd: Number.isInteger(target.selectionEnd) ? target.selectionEnd : target.value.length
+    };
+  }
+
+  if (target instanceof HTMLElement && target.isContentEditable) {
+    return {
+      kind: "contenteditable",
+      value: target.textContent ?? ""
+    };
+  }
+
+  return null;
+}
+
+function didEditableStateChange(target, previousState) {
+  if (!previousState) {
+    return false;
+  }
+
+  const currentState = readEditableKeyboardState(target);
+  if (!currentState) {
+    return false;
+  }
+
+  return currentState.value !== previousState.value ||
+    currentState.selectionStart !== previousState.selectionStart ||
+    currentState.selectionEnd !== previousState.selectionEnd;
+}
+
+function setFormFieldValue(target, value) {
+  const prototype = target instanceof HTMLTextAreaElement
+    ? HTMLTextAreaElement.prototype
+    : HTMLInputElement.prototype;
+  const descriptor = Object.getOwnPropertyDescriptor(prototype, "value");
+  if (descriptor?.set) {
+    descriptor.set.call(target, value);
+    return;
+  }
+
+  target.value = value;
+}
+
+function setFormFieldSelection(target, start, end = start) {
+  if (typeof target.setSelectionRange !== "function") {
+    return;
+  }
+
+  try {
+    target.setSelectionRange(start, end);
+  } catch {
+    // Some input types, such as number, do not expose text selection.
+  }
+}
+
+function restoreEditableSelection(target, editState) {
+  if (!editState || editState.kind !== "form-field") {
+    return;
+  }
+  if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) {
+    return;
+  }
+  if (target.value !== editState.value) {
+    return;
+  }
+
+  const selectionStart = Number.isInteger(editState.selectionStart) ? editState.selectionStart : target.value.length;
+  const selectionEnd = Number.isInteger(editState.selectionEnd) ? editState.selectionEnd : selectionStart;
+  setFormFieldSelection(target, selectionStart, selectionEnd);
+}
+
+function dispatchEditableBeforeInput(target, inputType, data) {
+  const beforeInputEvent = new InputEvent("beforeinput", {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    inputType,
+    data
+  });
+
+  if (!target.dispatchEvent(beforeInputEvent)) {
+    return false;
+  }
+
+  return true;
+}
+
+function dispatchEditableInput(target, inputType, data) {
+  target.dispatchEvent(new InputEvent("input", {
+    bubbles: true,
+    cancelable: false,
+    composed: true,
+    inputType,
+    data
+  }));
+  return true;
+}
+
+function replaceFormFieldSelection(target, replacement, inputType) {
+  const value = target.value;
+  const selectionStart = Number.isInteger(target.selectionStart) ? target.selectionStart : value.length;
+  const selectionEnd = Number.isInteger(target.selectionEnd) ? target.selectionEnd : selectionStart;
+  const nextValue = `${value.slice(0, selectionStart)}${replacement}${value.slice(selectionEnd)}`;
+  setFormFieldValue(target, nextValue);
+  const caret = selectionStart + replacement.length;
+  setFormFieldSelection(target, caret);
+  target.dispatchEvent(new InputEvent("input", {
+    bubbles: true,
+    cancelable: false,
+    composed: true,
+    inputType,
+    data: replacement || null
+  }));
+}
+
+function insertTextIntoEditable(target, text) {
+  if (!text) {
+    return false;
+  }
+
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    if (!dispatchEditableBeforeInput(target, "insertText", text)) {
+      return true;
+    }
+    replaceFormFieldSelection(target, text, "insertText");
+    return true;
+  }
+
+  if (target instanceof HTMLElement && target.isContentEditable) {
+    if (!dispatchEditableBeforeInput(target, "insertText", text)) {
+      return true;
+    }
+    document.execCommand("insertText", false, text);
+    dispatchEditableInput(target, "insertText", text);
+    return true;
+  }
+
+  return false;
+}
+
+function deleteBackwardFromEditable(target) {
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    const value = target.value;
+    const selectionStart = Number.isInteger(target.selectionStart) ? target.selectionStart : value.length;
+    const selectionEnd = Number.isInteger(target.selectionEnd) ? target.selectionEnd : selectionStart;
+    if (selectionStart === 0 && selectionEnd === 0) {
+      return true;
+    }
+    if (!dispatchEditableBeforeInput(target, "deleteContentBackward", null)) {
+      return true;
+    }
+    const deleteStart = selectionStart === selectionEnd ? Math.max(0, selectionStart - 1) : selectionStart;
+    const nextValue = `${value.slice(0, deleteStart)}${value.slice(selectionEnd)}`;
+    setFormFieldValue(target, nextValue);
+    setFormFieldSelection(target, deleteStart);
+    target.dispatchEvent(new InputEvent("input", {
+      bubbles: true,
+      cancelable: false,
+      composed: true,
+      inputType: "deleteContentBackward",
+      data: null
+    }));
+    return true;
+  }
+
+  if (target instanceof HTMLElement && target.isContentEditable) {
+    if (!dispatchEditableBeforeInput(target, "deleteContentBackward", null)) {
+      return true;
+    }
+    document.execCommand("delete", false);
+    dispatchEditableInput(target, "deleteContentBackward", null);
+    return true;
+  }
+
+  return false;
+}
+
+function deleteForwardFromEditable(target) {
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    const value = target.value;
+    const selectionStart = Number.isInteger(target.selectionStart) ? target.selectionStart : value.length;
+    const selectionEnd = Number.isInteger(target.selectionEnd) ? target.selectionEnd : selectionStart;
+    if (selectionStart === value.length && selectionEnd === value.length) {
+      return true;
+    }
+    if (!dispatchEditableBeforeInput(target, "deleteContentForward", null)) {
+      return true;
+    }
+    const deleteEnd = selectionStart === selectionEnd ? Math.min(value.length, selectionEnd + 1) : selectionEnd;
+    const nextValue = `${value.slice(0, selectionStart)}${value.slice(deleteEnd)}`;
+    setFormFieldValue(target, nextValue);
+    setFormFieldSelection(target, selectionStart);
+    target.dispatchEvent(new InputEvent("input", {
+      bubbles: true,
+      cancelable: false,
+      composed: true,
+      inputType: "deleteContentForward",
+      data: null
+    }));
+    return true;
+  }
+
+  if (target instanceof HTMLElement && target.isContentEditable) {
+    if (!dispatchEditableBeforeInput(target, "deleteContentForward", null)) {
+      return true;
+    }
+    document.execCommand("forwardDelete", false);
+    dispatchEditableInput(target, "deleteContentForward", null);
+    return true;
+  }
+
+  return false;
+}
+
+function focusNextElement(backward) {
+  const selector = [
+    "a[href]",
+    "button:not([disabled])",
+    "input:not([disabled])",
+    "select:not([disabled])",
+    "textarea:not([disabled])",
+    "[tabindex]:not([tabindex='-1'])",
+    "[contenteditable]"
+  ].join(",");
+  const elements = Array.from(document.querySelectorAll(selector))
+    .filter((element) => element instanceof HTMLElement && element.offsetParent !== null);
+  if (!elements.length) {
+    return false;
+  }
+
+  const activeElement = document.activeElement;
+  const currentIndex = elements.indexOf(activeElement);
+  const nextIndex = backward
+    ? (currentIndex <= 0 ? elements.length - 1 : currentIndex - 1)
+    : (currentIndex < 0 || currentIndex >= elements.length - 1 ? 0 : currentIndex + 1);
+  elements[nextIndex].focus();
+  return true;
+}
+
+function submitInputForm(target) {
+  if (!(target instanceof HTMLInputElement) || !(target.form instanceof HTMLFormElement)) {
+    return false;
+  }
+
+  if (typeof target.form.requestSubmit === "function") {
+    target.form.requestSubmit();
+    return true;
+  }
+
+  target.form.dispatchEvent(new Event("submit", {
+    bubbles: true,
+    cancelable: true
+  }));
+  return true;
+}
+
+function applyKeyboardDefaultEffect(action, target, keyboardEvent, previousEditState) {
+  if (keyboardEvent.defaultPrevented || action.type !== "keydown" || action.ctrlKey || action.metaKey || action.altKey) {
+    return;
+  }
+
+  if (action.key === "Tab") {
+    focusNextElement(action.shiftKey);
+    return;
+  }
+
+  if ((action.key === "Enter" || action.key === " ") && target instanceof HTMLElement && !getEditableKeyboardTarget(target)) {
+    target.click();
+    return;
+  }
+
+  const editableTarget = getEditableKeyboardTarget(target);
+  if (!editableTarget) {
+    return;
+  }
+  if (didEditableStateChange(editableTarget, previousEditState)) {
+    return;
+  }
+
+  if (action.key === "Backspace") {
+    deleteBackwardFromEditable(editableTarget);
+    return;
+  }
+
+  if (action.key === "Delete") {
+    deleteForwardFromEditable(editableTarget);
+    return;
+  }
+
+  if (action.key === "Enter") {
+    if (editableTarget instanceof HTMLTextAreaElement || editableTarget.isContentEditable) {
+      insertTextIntoEditable(editableTarget, "\n");
+      return;
+    }
+    submitInputForm(editableTarget);
+    return;
+  }
+
+  if (action.key.length === 1) {
+    insertTextIntoEditable(editableTarget, action.key);
+  }
+}
+
+function dispatchKeyboardAction(action) {
+  const target = getKeyboardActionTarget(action);
+  if (target instanceof HTMLElement) {
+    target.focus();
+  }
+  restoreEditableSelection(target, action.editState);
+  const editableTarget = getEditableKeyboardTarget(target);
+  const previousEditState = editableTarget ? readEditableKeyboardState(editableTarget) : null;
+  const event = new KeyboardEvent(action.type, {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    key: action.key,
+    code: action.code,
+    altKey: action.altKey,
+    ctrlKey: action.ctrlKey,
+    metaKey: action.metaKey,
+    shiftKey: action.shiftKey,
+    location: action.location,
+    repeat: action.repeat,
+    isComposing: action.isComposing
+  });
+  target.dispatchEvent(event);
+  applyKeyboardDefaultEffect(action, target, event, previousEditState);
 }
 
 function dispatchMouseMove(point, previousPoint) {

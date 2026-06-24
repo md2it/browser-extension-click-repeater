@@ -91,6 +91,10 @@ function describeExecutionEvent(event) {
         text: t("elementNotFound"),
         error: true
       };
+    case "position-not-found":
+      return { text: t("positionNotFound"), error: true };
+    case "target-not-found":
+      return { text: t("targetNotFound"), error: true };
     case "empty-steps":
       return { text: t("hasNoSteps"), error: true };
     case "failed":
@@ -116,14 +120,8 @@ async function startExecution(macroId) {
   const clickMode = macro.mode === "element" ? "element" : "position";
   const steps = Array.isArray(macro.steps)
     ? macro.steps
-      .map((step) => {
-        if (typeof step === "string") return step;
-        if (step && typeof step === "object") {
-          return clickMode === "element" ? (step.selector ?? "") : (step.position ?? "");
-        }
-        return "";
-      })
-      .filter((step) => step && step.trim())
+      .map((step) => normalizeStepForExecution(step, clickMode))
+      .filter(Boolean)
     : [];
   if (steps.length === 0) {
     setStatus(t("hasNoSteps"), { error: true });

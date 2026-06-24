@@ -9,6 +9,9 @@ Version logic:
 
 ## RELEASES
 
+### 1.1.0
+- Added recording and playback of keyboard input
+
 ### 1.0.7
 - Improved execution speed timing calculation
 

@@ -27,13 +27,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 
   if (message.type === "recording-listener-start") {
-    startRecordingClickListener();
+    startRecordingListeners();
     sendResponse({ ok: true });
     return;
   }
 
   if (message.type === "recording-listener-stop") {
-    stopRecordingClickListener();
+    stopRecordingListeners();
     sendResponse({ ok: true });
     return;
   }
@@ -72,7 +72,7 @@ document.addEventListener(
 
 void sendRuntimeMessage({ type: "recording-status" }).then((response) => {
   if (response?.ok && response.isActive) {
-    startRecordingClickListener();
+    startRecordingListeners();
   }
 });
 

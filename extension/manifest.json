@@ -3,7 +3,7 @@
   "default_locale": "en",
   "name": "Click Repeater",
   "description": "__MSG_extDescription__",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "background": {
     "service_worker": "sw.js",
     "scripts": [
@@ -64,6 +64,9 @@
         "app/content/runner.js",
         "app/content/main.js"
       ],
+      "all_frames": true,
+      "match_about_blank": true,
+      "match_origin_as_fallback": true,
       "run_at": "document_start"
     }
   ],

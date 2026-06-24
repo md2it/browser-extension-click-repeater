@@ -51,6 +51,7 @@ const recordingState = {
 };
 
 let isRecordingClickListenerAttached = false;
+let isRecordingKeyboardListenerAttached = false;
 let isExecutionClickListenerAttached = false;
 
 function randomBetween(min, max) {

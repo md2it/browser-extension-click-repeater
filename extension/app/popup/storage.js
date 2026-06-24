@@ -11,6 +11,113 @@ function normalizeRepeats(value) {
   return Math.min(999, Math.max(1, Math.floor(repeats)));
 }
 
+function normalizeKeyboardAction(step) {
+  if (!step || typeof step !== "object" || (step.type !== "keydown" && step.type !== "keyup")) {
+    return null;
+  }
+
+  const key = typeof step.key === "string" ? step.key : "";
+  const code = typeof step.code === "string" ? step.code : "";
+  if (!key && !code) {
+    return null;
+  }
+
+  const locationRaw = Number(step.location);
+  const editState = step.editState && typeof step.editState === "object"
+    ? {
+      kind: step.editState.kind === "contenteditable" ? "contenteditable" : "form-field",
+      value: typeof step.editState.value === "string" ? step.editState.value : "",
+      selectionStart: Number.isInteger(step.editState.selectionStart) ? step.editState.selectionStart : null,
+      selectionEnd: Number.isInteger(step.editState.selectionEnd) ? step.editState.selectionEnd : null
+    }
+    : null;
+  return {
+    type: step.type,
+    key,
+    code,
+    altKey: Boolean(step.altKey),
+    ctrlKey: Boolean(step.ctrlKey),
+    metaKey: Boolean(step.metaKey),
+    shiftKey: Boolean(step.shiftKey),
+    location: Number.isFinite(locationRaw) ? locationRaw : 0,
+    repeat: Boolean(step.repeat),
+    isComposing: Boolean(step.isComposing),
+    targetSelector: typeof step.targetSelector === "string" ? step.targetSelector.trim() : "",
+    editState,
+    frameId: Number.isInteger(step.frameId) ? step.frameId : null,
+    documentId: typeof step.documentId === "string" ? step.documentId : null
+  };
+}
+
+function normalizeRecordedStep(step) {
+  const keyboardAction = normalizeKeyboardAction(step);
+  if (keyboardAction) {
+    return keyboardAction;
+  }
+
+  if (!step || typeof step !== "object") {
+    return null;
+  }
+
+  const position = typeof step.position === "string" ? step.position.trim() : "";
+  const selector = typeof step.selector === "string" ? step.selector.trim() : "";
+  if (!position && !selector) {
+    return null;
+  }
+
+  return {
+    type: "click",
+    position,
+    selector,
+    frameId: Number.isInteger(step.frameId) ? step.frameId : null,
+    documentId: typeof step.documentId === "string" ? step.documentId : null
+  };
+}
+
+function normalizeStepForExecution(step, clickMode) {
+  if (typeof step === "string") {
+    const target = step.trim();
+    return target ? target : null;
+  }
+
+  const keyboardAction = normalizeKeyboardAction(step);
+  if (keyboardAction) {
+    return keyboardAction;
+  }
+
+  const clickStep = normalizeRecordedStep(step);
+  if (!clickStep || clickStep.type !== "click") {
+    return null;
+  }
+
+  const target = clickMode === "element" ? clickStep.selector : clickStep.position;
+  return target ? {
+    type: "click",
+    target,
+    targetMode: clickMode,
+    frameId: Number.isInteger(clickStep.frameId) ? clickStep.frameId : null,
+    documentId: typeof clickStep.documentId === "string" ? clickStep.documentId : null
+  } : null;
+}
+
+function formatStepLabel(step, clickMode) {
+  const keyboardAction = normalizeKeyboardAction(step);
+  if (keyboardAction) {
+    const identity = keyboardAction.code || keyboardAction.key;
+    return `${keyboardAction.type}: ${identity}`;
+  }
+
+  if (typeof step === "string") {
+    return step;
+  }
+
+  if (!step || typeof step !== "object") {
+    return "";
+  }
+
+  return clickMode === "element" ? (step.selector ?? "") : (step.position ?? "");
+}
+
 function normalizeRepeatInput(input) {
   input.value = String(normalizeRepeats(input.value));
 }

@@ -281,7 +281,7 @@ async function completeCreateModeIfNeeded() {
   }
 
   const steps = Array.isArray(response.steps)
-    ? response.steps.filter((step) => step && typeof step === "object" && (step.position || step.selector))
+    ? response.steps.map(normalizeRecordedStep).filter(Boolean)
     : [];
 
   const createdClick = {
@@ -323,11 +323,7 @@ function renderEditSteps(steps) {
   steps.forEach((step) => {
     const li = document.createElement("li");
     li.className = "step-row";
-    if (step && typeof step === "object") {
-      li.textContent = state.editMode === "element" ? (step.selector ?? "") : (step.position ?? "");
-    } else {
-      li.textContent = typeof step === "string" ? step : "";
-    }
+    li.textContent = formatStepLabel(step, state.editMode);
     refs.editSteps.append(li);
   });
 
