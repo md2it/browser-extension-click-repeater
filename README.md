@@ -73,7 +73,9 @@ See [all user paths](./SPEC/user-path.md) for more details.
 - Position mode depends on the relevant content remaining at the recorded coordinates
 - Website changes may prevent older saved clicks from completing
 - Simulated pointer movement cannot guarantee native CSS `:hover`; controls revealed only by real cursor hover may not activate
-- The extension records and repeats clicks only
+- The extension records and repeats clicks and keyboard input
+- Delete / Backspace playback does not work in Google Docs
+- Keyboard input into Google Sheets cells does not work
 - Simulated clicks may be detected by websites even in Stealth mode — browser-generated events lack the `isTrusted: true` flag that real user interactions carry; sites that check `event.isTrusted` will see through the automation regardless of how the click is dispatched
 
 ## LICENSE

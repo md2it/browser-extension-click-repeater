@@ -306,6 +306,10 @@ function dispatchEditableBeforeInput(target, inputType, data) {
   return true;
 }
 
+function dispatchEditableBeforeInputNotice(target, inputType, data) {
+  dispatchEditableBeforeInput(target, inputType, data);
+}
+
 function dispatchEditableInput(target, inputType, data) {
   target.dispatchEvent(new InputEvent("input", {
     bubbles: true,
@@ -315,6 +319,28 @@ function dispatchEditableInput(target, inputType, data) {
     data
   }));
   return true;
+}
+
+function runEditableCommandWithInputFallback(target, command, inputType, data = null) {
+  let inputDispatched = false;
+  const handleInput = () => {
+    inputDispatched = true;
+  };
+  target.addEventListener("input", handleInput, true);
+  let didEdit = false;
+  try {
+    didEdit = document.execCommand(command, false, data ?? undefined);
+  } catch {
+    didEdit = false;
+  } finally {
+    target.removeEventListener("input", handleInput, true);
+  }
+
+  if (didEdit && !inputDispatched) {
+    dispatchEditableInput(target, inputType, data);
+  }
+
+  return didEdit;
 }
 
 function replaceFormFieldSelection(target, replacement, inputType) {
@@ -340,19 +366,14 @@ function insertTextIntoEditable(target, text) {
   }
 
   if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
-    if (!dispatchEditableBeforeInput(target, "insertText", text)) {
-      return true;
-    }
+    dispatchEditableBeforeInputNotice(target, "insertText", text);
     replaceFormFieldSelection(target, text, "insertText");
     return true;
   }
 
   if (target instanceof HTMLElement && target.isContentEditable) {
-    if (!dispatchEditableBeforeInput(target, "insertText", text)) {
-      return true;
-    }
-    document.execCommand("insertText", false, text);
-    dispatchEditableInput(target, "insertText", text);
+    dispatchEditableBeforeInputNotice(target, "insertText", text);
+    runEditableCommandWithInputFallback(target, "insertText", "insertText", text);
     return true;
   }
 
@@ -367,9 +388,7 @@ function deleteBackwardFromEditable(target) {
     if (selectionStart === 0 && selectionEnd === 0) {
       return true;
     }
-    if (!dispatchEditableBeforeInput(target, "deleteContentBackward", null)) {
-      return true;
-    }
+    dispatchEditableBeforeInputNotice(target, "deleteContentBackward", null);
     const deleteStart = selectionStart === selectionEnd ? Math.max(0, selectionStart - 1) : selectionStart;
     const nextValue = `${value.slice(0, deleteStart)}${value.slice(selectionEnd)}`;
     setFormFieldValue(target, nextValue);
@@ -385,11 +404,8 @@ function deleteBackwardFromEditable(target) {
   }
 
   if (target instanceof HTMLElement && target.isContentEditable) {
-    if (!dispatchEditableBeforeInput(target, "deleteContentBackward", null)) {
-      return true;
-    }
-    document.execCommand("delete", false);
-    dispatchEditableInput(target, "deleteContentBackward", null);
+    dispatchEditableBeforeInputNotice(target, "deleteContentBackward", null);
+    runEditableCommandWithInputFallback(target, "delete", "deleteContentBackward");
     return true;
   }
 
@@ -404,9 +420,7 @@ function deleteForwardFromEditable(target) {
     if (selectionStart === value.length && selectionEnd === value.length) {
       return true;
     }
-    if (!dispatchEditableBeforeInput(target, "deleteContentForward", null)) {
-      return true;
-    }
+    dispatchEditableBeforeInputNotice(target, "deleteContentForward", null);
     const deleteEnd = selectionStart === selectionEnd ? Math.min(value.length, selectionEnd + 1) : selectionEnd;
     const nextValue = `${value.slice(0, selectionStart)}${value.slice(deleteEnd)}`;
     setFormFieldValue(target, nextValue);
@@ -422,11 +436,8 @@ function deleteForwardFromEditable(target) {
   }
 
   if (target instanceof HTMLElement && target.isContentEditable) {
-    if (!dispatchEditableBeforeInput(target, "deleteContentForward", null)) {
-      return true;
-    }
-    document.execCommand("forwardDelete", false);
-    dispatchEditableInput(target, "deleteContentForward", null);
+    dispatchEditableBeforeInputNotice(target, "deleteContentForward", null);
+    runEditableCommandWithInputFallback(target, "forwardDelete", "deleteContentForward");
     return true;
   }
 
@@ -476,11 +487,19 @@ function submitInputForm(target) {
 }
 
 function applyKeyboardDefaultEffect(action, target, keyboardEvent, previousEditState) {
-  if (keyboardEvent.defaultPrevented || action.type !== "keydown" || action.ctrlKey || action.metaKey || action.altKey) {
+  if (action.type !== "keydown" || action.ctrlKey || action.metaKey || action.altKey) {
+    return;
+  }
+
+  const editableTarget = getEditableKeyboardTarget(target);
+  if (!editableTarget && keyboardEvent.defaultPrevented) {
     return;
   }
 
   if (action.key === "Tab") {
+    if (keyboardEvent.defaultPrevented) {
+      return;
+    }
     focusNextElement(action.shiftKey);
     return;
   }
@@ -490,7 +509,6 @@ function applyKeyboardDefaultEffect(action, target, keyboardEvent, previousEditS
     return;
   }
 
-  const editableTarget = getEditableKeyboardTarget(target);
   if (!editableTarget) {
     return;
   }
