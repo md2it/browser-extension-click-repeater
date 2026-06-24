@@ -14,13 +14,14 @@ Laden Sie das gesamte Verzeichnis [`extension`](../extension) als entpackte Erwe
 
 ## BESCHREIBUNG
 
-Click Repeater zeichnet Klicks auf einer Webseite auf und wiederholt sie später.
+Click Repeater zeichnet Klicks und Tastatureingaben auf einer Webseite auf und wiederholt sie später.
 
-Erstellen Sie eine Klickfolge, konfigurieren Sie die Ausführung und starten Sie sie über das Erweiterungsfenster oder eine Tastenkombination. Klicks können aufgezeichnete Koordinaten oder Seitenelemente verwenden.
+Erstellen Sie einmal eine Aktionsfolge, konfigurieren Sie die Ausführung und starten Sie sie über das Erweiterungsfenster oder eine Tastenkombination. Klicks können aufgezeichnete Koordinaten oder Seitenelemente verwenden.
 
 ## HAUPTFUNKTIONEN
 
 - Klickfolgen auf Webseiten aufzeichnen
+- Tastatureingaben aufzeichnen und wiederholen
 - Im Positions- oder Elementmodus ausführen
 - Sichtbare oder unsichtbare Ausführung
 - Bis zu 999-mal wiederholen
@@ -72,7 +73,9 @@ Weitere Informationen finden Sie unter [alle Benutzerpfade](../SPEC/user-path.md
 - Der Elementmodus setzt voraus, dass die aufgezeichneten Elemente weiterhin auf der Seite vorhanden sind
 - Der Positionsmodus setzt voraus, dass sich der relevante Inhalt weiterhin an den aufgezeichneten Koordinaten befindet
 - Änderungen an einer Website können verhindern, dass ältere gespeicherte Klicks abgeschlossen werden
-- Die Erweiterung zeichnet ausschließlich Klicks auf und wiederholt sie
+- Simulierte Zeigerbewegung kann natives CSS `:hover` nicht garantieren; Bedienelemente, die nur durch echten Cursor-Hover sichtbar werden, werden möglicherweise nicht aktiviert
+- Die Wiedergabe von Delete / Backspace funktioniert in Google Docs nicht
+- Tastatureingaben in Google-Sheets-Zellen funktionieren nicht
 - Simulierte Klicks können von Websites auch im Stealth-Modus erkannt werden — browsergenerierte Ereignisse tragen nicht das Flag `isTrusted: true`, das echten Nutzerinteraktionen vorbehalten ist; Seiten, die `event.isTrusted` prüfen, erkennen die Automatisierung unabhängig davon, wie der Klick ausgelöst wurde
 
 ## LIZENZ

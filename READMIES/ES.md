@@ -14,13 +14,14 @@ Carga el directorio completo [`extension`](../extension) como una extensión des
 
 ## DESCRIPCIÓN
 
-Click Repeater graba clics en una página web y los repite posteriormente.
+Click Repeater graba clics y entradas de teclado en una página web y los repite posteriormente.
 
-Graba los clics una vez, configura cómo deben ejecutarse e inícielos desde la ventana de la extensión o con un atajo de teclado. Los clics pueden usar coordenadas grabadas o elementos de la página.
+Crea una secuencia de acciones una vez, configura cómo debe ejecutarse e iníciala desde la ventana de la extensión o con un atajo de teclado. Los clics pueden usar coordenadas grabadas o elementos de la página.
 
 ## FUNCIONES PRINCIPALES
 
 - Grabar secuencias de clics en páginas web
+- Grabar y repetir entradas de teclado
 - Ejecutar en modo Posición o Elemento
 - Ejecución visible o invisible
 - Repetir hasta 999 veces
@@ -72,7 +73,9 @@ Consulta [todas las rutas de usuario](../SPEC/user-path.md) para obtener más in
 - El modo Elemento requiere que los elementos grabados sigan disponibles en la página
 - El modo Posición requiere que el contenido correspondiente permanezca en las coordenadas grabadas
 - Los cambios en un sitio web pueden impedir que los clics guardados más antiguos se completen
-- La extensión solo graba y repite clics
+- El movimiento simulado del puntero no puede garantizar el CSS `:hover` nativo; los controles que solo aparecen al pasar el cursor real pueden no activarse
+- La reproducción de Delete / Backspace no funciona en Google Docs
+- La entrada de teclado en celdas de Google Sheets no funciona
 - Los clics simulados pueden ser detectados por los sitios web incluso en modo Stealth — los eventos generados por el navegador no tienen el indicador `isTrusted: true` que llevan las interacciones reales del usuario; los sitios que comprueban `event.isTrusted` detectarán la automatización independientemente de cómo se envíe el clic
 
 ## LICENCIA

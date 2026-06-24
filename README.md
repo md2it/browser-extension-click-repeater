@@ -14,13 +14,14 @@ Load the entire [`extension`](./extension) directory as an unpacked extension.
 
 ## DESCRIPTION
 
-Click Repeater records clicks on a web page and repeats them later.
+Click Repeater records clicks and keyboard input on a web page and repeats them later.
 
-Create a click sequence once, configure how it should run, and launch it from the extension popup or with a keyboard shortcut. Clicks can target recorded coordinates or page elements.
+Create an action sequence once, configure how it should run, and launch it from the extension popup or with a keyboard shortcut. Clicks can target recorded coordinates or page elements.
 
 ## KEY FEATURES
 
 - Record click sequences on web pages
+- Record and repeat keyboard input
 - Run clicks in Position or Element mode
 - Visible and Stealth execution
 - Repeat up to 999 times
@@ -73,7 +74,6 @@ See [all user paths](./SPEC/user-path.md) for more details.
 - Position mode depends on the relevant content remaining at the recorded coordinates
 - Website changes may prevent older saved clicks from completing
 - Simulated pointer movement cannot guarantee native CSS `:hover`; controls revealed only by real cursor hover may not activate
-- The extension records and repeats clicks and keyboard input
 - Delete / Backspace playback does not work in Google Docs
 - Keyboard input into Google Sheets cells does not work
 - Simulated clicks may be detected by websites even in Stealth mode — browser-generated events lack the `isTrusted: true` flag that real user interactions carry; sites that check `event.isTrusted` will see through the automation regardless of how the click is dispatched

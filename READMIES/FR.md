@@ -14,13 +14,14 @@ Chargez l'intégralité du répertoire [`extension`](../extension) comme extensi
 
 ## DESCRIPTION
 
-Click Repeater enregistre les clics effectués sur une page web et les répète ultérieurement.
+Click Repeater enregistre les clics et les saisies au clavier effectués sur une page web et les répète ultérieurement.
 
-Enregistrez des clics une fois, configurez leur exécution et lancez-les depuis la fenêtre de l'extension ou avec un raccourci clavier. Les clics peuvent utiliser des coordonnées enregistrées ou des éléments de la page.
+Créez une séquence d'actions une fois, configurez son exécution et lancez-la depuis la fenêtre de l'extension ou avec un raccourci clavier. Les clics peuvent utiliser des coordonnées enregistrées ou des éléments de la page.
 
 ## FONCTIONNALITÉS PRINCIPALES
 
 - Enregistrer des séquences de clics sur des pages web
+- Enregistrer et répéter les saisies au clavier
 - Exécuter en mode Position ou Élément
 - Exécution visible ou invisible
 - Répéter jusqu'à 999 fois
@@ -72,7 +73,9 @@ Consultez [tous les parcours utilisateur](../SPEC/user-path.md) pour plus de dé
 - Le mode Élément nécessite que les éléments enregistrés soient toujours présents sur la page
 - Le mode Position nécessite que le contenu concerné reste aux coordonnées enregistrées
 - Les modifications d'un site web peuvent empêcher l'exécution complète d'anciens clics enregistrés
-- L'extension enregistre et répète uniquement les clics
+- Le mouvement simulé du pointeur ne peut pas garantir le CSS `:hover` natif ; les contrôles qui n'apparaissent qu'au survol réel du curseur peuvent ne pas s'activer
+- La lecture de Delete / Backspace ne fonctionne pas dans Google Docs
+- La saisie au clavier dans les cellules Google Sheets ne fonctionne pas
 - Les clics simulés peuvent être détectés par les sites web même en mode Stealth — les événements générés par le navigateur ne portent pas l'indicateur `isTrusted: true` propre aux interactions utilisateur réelles ; les sites qui vérifient `event.isTrusted` détecteront l'automatisation quelle que soit la méthode utilisée pour déclencher le clic
 
 ## LICENCE
