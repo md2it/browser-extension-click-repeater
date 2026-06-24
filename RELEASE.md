@@ -9,6 +9,10 @@ Version logic:
 
 ## RELEASES
 
+### 1.1.1
+- Added keyboard sound effects
+- Renamed Click sound setting to Sound effects
+
 ### 1.1.0
 - Added recording and playback of keyboard input
 
