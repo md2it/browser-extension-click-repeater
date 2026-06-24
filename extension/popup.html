@@ -178,6 +178,11 @@
         <section class="field">
           <span data-i18n="stepsList">Steps</span>
           <ol id="edit-steps" class="steps-list"></ol>
+          <label id="edit-steps-detail-row" class="steps-detail-row" for="edit-steps-detail">
+            <input type="checkbox" id="edit-steps-detail" class="visually-hidden" />
+            <span class="toggle-switch-visual" aria-hidden="true"></span>
+            <span id="edit-steps-detail-label" data-i18n="showDetailedSteps">Show details</span>
+          </label>
         </section>
       </div>
     </div>
@@ -253,6 +258,7 @@
     <script src="app/i18n.js"></script>
     <script src="app/popup/state.js"></script>
     <script src="app/popup/storage.js"></script>
+    <script src="app/popup/step-display.js"></script>
     <script src="app/popup/execution.js"></script>
     <script src="app/popup/render.js"></script>
     <script src="app/popup/navigation.js"></script>

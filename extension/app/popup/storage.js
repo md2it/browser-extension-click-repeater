@@ -100,10 +100,22 @@ function normalizeStepForExecution(step, clickMode) {
   } : null;
 }
 
+function formatKeyboardIdentity(action) {
+  if (action.key === "Meta" || action.code === "MetaLeft" || action.code === "MetaRight") {
+    return "Cmd";
+  }
+
+  if (action.key === " " || action.code === "Space") {
+    return "Space";
+  }
+
+  return action.code || action.key;
+}
+
 function formatStepLabel(step, clickMode) {
   const keyboardAction = normalizeKeyboardAction(step);
   if (keyboardAction) {
-    const identity = keyboardAction.code || keyboardAction.key;
+    const identity = formatKeyboardIdentity(keyboardAction);
     return `${keyboardAction.type}: ${identity}`;
   }
 

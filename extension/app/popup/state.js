@@ -19,6 +19,7 @@ const state = {
   modalMode: null,
   editClickId: null,
   editMode: "position",
+  showDetailedSteps: false,
   pendingDeleteClickId: null,
   executionPollTimer: null
 };
@@ -47,6 +48,9 @@ const refs = {
   editDefaultIcon: document.getElementById("edit-default-icon"),
   editDefault: document.getElementById("edit-default"),
   editSteps: document.getElementById("edit-steps"),
+  editStepsDetailRow: document.getElementById("edit-steps-detail-row"),
+  editStepsDetail: document.getElementById("edit-steps-detail"),
+  editStepsDetailLabel: document.getElementById("edit-steps-detail-label"),
   editModeToggle: document.getElementById("edit-mode-toggle"),
   editModeIcon: document.getElementById("edit-mode-icon"),
   editModeLabel: document.getElementById("edit-mode-label"),

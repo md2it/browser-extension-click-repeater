@@ -49,6 +49,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 document.addEventListener(
   "keydown",
   (event) => {
+    if (!event.isTrusted) {
+      return;
+    }
+
     if (event.key === "Escape") {
       if (executionState.isRunning) {
         executionState.stopRequested = true;
@@ -79,6 +83,10 @@ void sendRuntimeMessage({ type: "recording-status" }).then((response) => {
 document.addEventListener(
   "keyup",
   (event) => {
+    if (!event.isTrusted) {
+      return;
+    }
+
     if (!shortcutState.isPrefixDown) {
       return;
     }

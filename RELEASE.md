@@ -9,6 +9,11 @@ Version logic:
 
 ## RELEASES
 
+### 1.1.2
+- Added compact step display for recorded keyboard input
+- Added detailed step view toggle
+- Improved keyboard shortcut display
+
 ### 1.1.1
 - Added keyboard sound effects
 - Renamed Click sound setting to Sound effects

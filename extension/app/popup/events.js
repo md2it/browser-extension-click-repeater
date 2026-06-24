@@ -242,6 +242,11 @@ refs.editName.addEventListener("input", () => {
   }
 });
 
+refs.editStepsDetail.addEventListener("change", () => {
+  state.showDetailedSteps = refs.editStepsDetail.checked;
+  renderEditSteps(getCurrentEditSteps());
+});
+
 refs.clearEditNameBtn.addEventListener("click", () => {
   refs.editName.value = "";
   refs.editName.focus();

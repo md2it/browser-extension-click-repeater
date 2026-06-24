@@ -148,6 +148,8 @@ function openEditModal(macroId, { selectAll = false } = {}) {
     setEditDisplayMoves(getDisplayMovesValue(macro));
     setEditDefault(macro.id === defaultClickId);
     setEditMode(macro.mode ?? "position");
+    state.showDetailedSteps = false;
+    refs.editStepsDetail.checked = false;
     renderEditSteps(Array.isArray(macro.steps) ? macro.steps : []);
     refs.editModal.classList.remove("hidden");
     if (selectAll) {
@@ -168,6 +170,8 @@ function openEditModal(macroId, { selectAll = false } = {}) {
   setEditDisplayMoves(true);
   setEditDefault(false);
   setEditMode("position");
+  state.showDetailedSteps = false;
+  refs.editStepsDetail.checked = false;
   renderEditSteps([]);
   refs.editModal.classList.remove("hidden");
   focusEditNameSelectAll();
@@ -310,6 +314,9 @@ function getCurrentEditSteps() {
 
 function renderEditSteps(steps) {
   refs.editSteps.innerHTML = "";
+  refs.editStepsDetailRow.classList.toggle("hidden", steps.length === 0);
+  refs.editStepsDetail.checked = state.showDetailedSteps;
+  refs.editStepsDetailLabel.textContent = t(state.showDetailedSteps ? "hideDetailedSteps" : "showDetailedSteps");
 
   if (steps.length === 0) {
     const li = document.createElement("li");
@@ -320,10 +327,10 @@ function renderEditSteps(steps) {
     return;
   }
 
-  steps.forEach((step) => {
+  createStepDisplayRows(steps, state.editMode, state.showDetailedSteps).forEach((label) => {
     const li = document.createElement("li");
     li.className = "step-row";
-    li.textContent = formatStepLabel(step, state.editMode);
+    li.textContent = label;
     refs.editSteps.append(li);
   });
 
