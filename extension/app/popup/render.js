@@ -14,11 +14,13 @@ function render() {
 
   for (const macro of clicks) {
     const displayMovesEnabled = getDisplayMovesValue(macro);
-    const displayMovesTitle = t(displayMovesEnabled ? "displayMovesOn" : "displayMovesOff");
-    const displayMovesIcon = displayMovesEnabled ? iconSet.eye : iconSet.eyeOff;
-    const displayMovesClassName = displayMovesEnabled ? "display-moves-on" : "display-moves-off";
-    const modeIcon = (macro.mode ?? "position") === "element" ? iconSet.code : iconSet.crosshair;
-    const modeTitle = t((macro.mode ?? "position") === "element" ? "modeElement" : "modePosition");
+    const isElementMode = (macro.mode ?? "position") === "element";
+    const modeIndicator = isElementMode
+      ? `<span class="click-mode-icon" aria-hidden="true" data-tooltip="${t("modeElement")}">${iconSet.code}</span>`
+      : "";
+    const displayMovesIndicator = displayMovesEnabled
+      ? ""
+      : `<span class="click-display-moves-icon display-moves-off" aria-hidden="true" data-tooltip="${t("displayMovesOff")}">${iconSet.eyeOff}</span>`;
     const isDefault = macro.id === defaultClickId;
     const defaultTitle = t(isDefault ? "defaultLabel" : "makeDefault");
     const defaultDetail = t(isDefault ? "worksByShortcut" : "enableShortcut");
@@ -30,8 +32,8 @@ function render() {
       <div class="click-row">
         <div class="click-main">
           <button class="icon-btn run-btn" type="button" data-action="run" data-id="${macro.id}" data-tooltip="${t("run")}" aria-label="${t("run")}">${iconSet.play}</button>
-          <span class="click-mode-icon" aria-hidden="true" data-tooltip="${modeTitle}">${modeIcon}</span>
-          <span class="click-display-moves-icon ${displayMovesClassName}" aria-hidden="true" data-tooltip="${displayMovesTitle}">${displayMovesIcon}</span>
+          ${modeIndicator}
+          ${displayMovesIndicator}
           <span class="click-name">${macro.name}</span>
         </div>
         <div class="click-actions">
