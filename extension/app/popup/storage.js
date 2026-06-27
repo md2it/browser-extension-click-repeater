@@ -248,14 +248,6 @@ async function loadClicks() {
     defaultClickId = null;
     await persistDefaultClickId();
   }
-
-  if (defaultClickId) {
-    const defaultIndex = clicks.findIndex((macro) => macro.id === defaultClickId);
-    if (defaultIndex > 0) {
-      const [defaultClick] = clicks.splice(defaultIndex, 1);
-      clicks.unshift(defaultClick);
-    }
-  }
 }
 
 async function readSettingsFromStorage() {
