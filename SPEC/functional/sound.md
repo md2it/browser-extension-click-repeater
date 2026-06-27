@@ -4,8 +4,9 @@
 - Each successfully executed scenario key press plays a short sound imitating a keyboard key press.
 - Key release actions do not play a sound.
 - Sounds are controlled by the extension-wide "Sound effects" setting.
-- The setting is enabled by default.
-- When disabled, scenario execution sounds are silent.
+- The setting is enabled by default at the loud volume level.
+- Each click on the setting cycles to the next volume level.
+- When set to silent, scenario execution sounds are silent.
 - Sounds are generated locally and do not require network access.
 
 ## Sound types
@@ -23,7 +24,12 @@
 
 - Sound-effect volume follows the user's operating-system and output-device volume.
 - The extension must not read, change, bypass, or reset system volume or audio-device settings.
-- Sound effects have a fixed internal gain. A separate extension volume setting is not currently provided.
+- Sound effects have three extension-controlled internal gain levels:
+   - `volume`: silent; click gain `0`; key press gain `0`; gray icon.
+   - `volume-1`: quiet; click gain `0.14`; key press gain `0.07`; light-blue icon.
+   - `volume-2`: loud; click gain `0.28`; key press gain `0.14`; blue icon.
+- The setting is shown as an icon button, not as a toggle.
+- The icon button uses the Lucide `volume`, `volume-1`, and `volume-2` icons for the three levels.
 - Future changes to internal gain must preserve sufficient audibility without clipping or dominating other audio.
 
 ## Implementation

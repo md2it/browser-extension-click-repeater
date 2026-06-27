@@ -82,12 +82,33 @@ html.dark-theme .language-btn {
   background: rgba(31, 41, 55, 0.9);
 }
 
+html.dark-theme .sound-volume-btn {
+  color: #d1d5db;
+  background: transparent;
+}
+
 html.dark-theme .btn:hover,
 html.dark-theme .icon-btn:hover,
 html.dark-theme .setting-toggle:hover,
 html.dark-theme .speed-cycle-btn:hover {
   border-color: #64748b;
   background: #273449;
+}
+
+html.dark-theme .sound-volume-btn:hover {
+  background: transparent;
+}
+
+html.dark-theme .sound-volume-btn--muted {
+  color: #9ca3af;
+}
+
+html.dark-theme .sound-volume-btn--quiet {
+  color: #012292;
+}
+
+html.dark-theme .sound-volume-btn--loud {
+  color: #012292;
 }
 
 html.dark-theme .btn.btn-primary,

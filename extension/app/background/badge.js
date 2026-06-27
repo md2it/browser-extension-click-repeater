@@ -155,6 +155,9 @@ async function startDefaultClickFromTab(tabId) {
   const repeats = Number.isFinite(repeatsRaw) && repeatsRaw > 0 ? Math.floor(repeatsRaw) : 1;
   const settingsData = await ext.storage.local.get("popup_settings");
   const storedSettings = settingsData?.popup_settings;
+  const soundVolume = ["volume", "volume-1", "volume-2"].includes(storedSettings?.soundVolume)
+    ? storedSettings.soundVolume
+    : (storedSettings?.clickSound !== false ? "volume-2" : "volume");
   return startExecutionOnTab({
     tabId,
     clickId: click.id,
@@ -162,7 +165,8 @@ async function startDefaultClickFromTab(tabId) {
     repeats,
     trackMoves: Boolean(click.displayMoves ?? click.trackMoves),
     executionSpeed: normalizeExecutionSpeed(storedSettings?.executionSpeed),
-    clickSound: storedSettings?.clickSound !== false,
+    soundVolume,
+    clickSound: soundVolume !== "volume",
     steps
   });
 }

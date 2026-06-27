@@ -258,8 +258,10 @@ async function readSettingsFromStorage() {
       if (EXECUTION_SPEED_VALUES.includes(stored.executionSpeed)) {
         settings.executionSpeed = stored.executionSpeed;
       }
-      if (typeof stored.clickSound === "boolean") {
-        settings.clickSound = stored.clickSound;
+      if (SOUND_VOLUME_LEVELS.includes(stored.soundVolume)) {
+        settings.soundVolume = stored.soundVolume;
+      } else if (typeof stored.clickSound === "boolean") {
+        settings.soundVolume = stored.clickSound ? DEFAULT_SOUND_VOLUME : "volume";
       }
       if (typeof stored.skipNewClickExplanation === "boolean") {
         settings.skipNewClickExplanation = stored.skipNewClickExplanation;
@@ -283,12 +285,30 @@ async function persistSettings() {
 
 function syncSettingsUI() {
   refs.settingExecutionSpeed.textContent = `${settings.executionSpeed}×`;
-  refs.settingClickSound.checked = settings.clickSound;
+  syncSoundVolumeUI();
   refs.settingSkipNewRecording.checked = settings.skipNewClickExplanation;
   refs.settingSkipDisplayMoves.checked = settings.skipDisplayMovesExplanation;
   refs.settingSkipMode.checked = settings.skipModeExplanation;
   refs.settingDarkTheme.checked = settings.darkTheme;
   document.documentElement.classList.toggle("dark-theme", settings.darkTheme);
+}
+
+function syncSoundVolumeUI() {
+  const soundVolume = SOUND_VOLUME_LEVELS.includes(settings.soundVolume)
+    ? settings.soundVolume
+    : DEFAULT_SOUND_VOLUME;
+  const iconByLevel = {
+    volume: iconSet.volume,
+    "volume-1": iconSet.volume1,
+    "volume-2": iconSet.volume2
+  };
+  refs.settingClickSound.classList.toggle("sound-volume-btn--muted", soundVolume === "volume");
+  refs.settingClickSound.classList.toggle("sound-volume-btn--quiet", soundVolume === "volume-1");
+  refs.settingClickSound.classList.toggle("sound-volume-btn--loud", soundVolume === "volume-2");
+  refs.settingClickSound.dataset.soundVolume = soundVolume;
+  refs.settingClickSound.dataset.tooltip = t("clickSound");
+  refs.settingClickSound.setAttribute("aria-label", t("clickSound"));
+  refs.settingClickSound.innerHTML = iconByLevel[soundVolume];
 }
 
 async function cleanupLegacyTrackMovesSetting() {

@@ -3,6 +3,12 @@ let clickAudioBuffer = null;
 let keyPressAudioBuffer = null;
 let soundAudioKeepAlive = null;
 
+const SOUND_VOLUME_GAINS = {
+  volume: { click: 0, keyPress: 0 },
+  "volume-1": { click: 0.14, keyPress: 0.07 },
+  "volume-2": { click: 0.28, keyPress: 0.14 }
+};
+
 function getAudioContextClass() {
   return globalThis.AudioContext || globalThis.webkitAudioContext;
 }
@@ -100,12 +106,20 @@ function playSoundBuffer(getBuffer, volume = 0.18) {
   source.start();
 }
 
-function playClickSound() {
-  playSoundBuffer(() => clickAudioBuffer);
+function getSoundVolumeGains(soundVolume) {
+  return SOUND_VOLUME_GAINS[soundVolume] ?? SOUND_VOLUME_GAINS["volume-2"];
 }
 
-function playKeyPressSound() {
-  playSoundBuffer(() => keyPressAudioBuffer, 0.11);
+function playClickSound(soundVolume = "volume-2") {
+  const { click } = getSoundVolumeGains(soundVolume);
+  if (click <= 0) return;
+  playSoundBuffer(() => clickAudioBuffer, click);
+}
+
+function playKeyPressSound(soundVolume = "volume-2") {
+  const { keyPress } = getSoundVolumeGains(soundVolume);
+  if (keyPress <= 0) return;
+  playSoundBuffer(() => keyPressAudioBuffer, keyPress);
 }
 
 function releaseSoundEffects() {

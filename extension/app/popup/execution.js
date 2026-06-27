@@ -137,7 +137,7 @@ async function startExecution(macroId) {
     steps,
     trackMoves: getDisplayMovesValue(macro),
     executionSpeed: settings.executionSpeed,
-    clickSound: settings.clickSound
+    soundVolume: settings.soundVolume
   });
 
   if (!response?.ok) {

@@ -174,6 +174,9 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const trackMoves = Boolean(message.trackMoves);
       const executionSpeed = normalizeExecutionSpeed(message.executionSpeed);
       const clickSound = message.clickSound !== false;
+      const soundVolume = ["volume", "volume-1", "volume-2"].includes(message.soundVolume)
+        ? message.soundVolume
+        : (clickSound ? "volume-2" : "volume");
       const steps = Array.isArray(message.steps) ? message.steps.filter((step) => {
         if (typeof step === "string") {
           return Boolean(step.trim());
@@ -186,7 +189,7 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         return Boolean(normalizeKeyboardAction(step));
       }) : [];
-      const result = await startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMoves, executionSpeed, clickSound, steps });
+      const result = await startExecutionOnTab({ tabId, clickId, clickName, repeats, trackMoves, executionSpeed, soundVolume, clickSound, steps });
       sendResponse(result);
     })().catch(() => sendResponse({ ok: false, error: "execution_start_failed" }));
     return true;

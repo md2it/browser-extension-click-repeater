@@ -448,8 +448,11 @@ refs.settingExecutionSpeed.addEventListener("click", async () => {
   await persistSettings();
 });
 
-refs.settingClickSound.addEventListener("change", async () => {
-  settings.clickSound = refs.settingClickSound.checked;
+refs.settingClickSound.addEventListener("click", async () => {
+  const currentIndex = SOUND_VOLUME_LEVELS.indexOf(settings.soundVolume);
+  const nextIndex = (Math.max(currentIndex, 0) + 1) % SOUND_VOLUME_LEVELS.length;
+  settings.soundVolume = SOUND_VOLUME_LEVELS[nextIndex];
+  syncSettingsUI();
   await persistSettings();
 });
 

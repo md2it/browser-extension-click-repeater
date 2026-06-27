@@ -142,7 +142,7 @@ async function runClickAction(token, fromPoint, action) {
 
   await dispatchMouseClick(token, clickTarget, clickPoint);
   if (executionState.clickSound) {
-    playClickSound();
+    playClickSound(executionState.soundVolume);
   }
   if (!shouldStop(token)) {
     await sleep(randomDelay(profile.stepMinMs, profile.stepMaxMs));
@@ -162,7 +162,7 @@ async function runKeyboardAction(token, fromPoint, action) {
 
   dispatchKeyboardAction(action);
   if (executionState.clickSound && action.type === "keydown") {
-    playKeyPressSound();
+    playKeyPressSound(executionState.soundVolume);
   }
   await sleep(randomDelay(profile.stepMinMs, profile.stepMaxMs));
   if (shouldStop(token)) {
@@ -191,6 +191,9 @@ async function runExecution(payload) {
   const trackMoves = Boolean(payload?.trackMoves);
   const executionSpeed = normalizeExecutionSpeed(payload?.executionSpeed);
   const clickSound = payload?.clickSound !== false;
+  const soundVolume = ["volume", "volume-1", "volume-2"].includes(payload?.soundVolume)
+    ? payload.soundVolume
+    : (clickSound ? "volume-2" : "volume");
   const steps = Array.isArray(payload?.steps) ? payload.steps.map(normalizeExecutionAction).filter(Boolean) : [];
   if (steps.length === 0) {
     return { ok: false, error: "empty_steps" };
@@ -204,8 +207,9 @@ async function runExecution(payload) {
   const token = executionState.token;
   executionState.trackMoves = trackMoves;
   executionState.executionSpeed = executionSpeed;
-  executionState.clickSound = clickSound;
-  if (clickSound && hasSoundActions) {
+  executionState.soundVolume = soundVolume;
+  executionState.clickSound = soundVolume !== "volume";
+  if (soundVolume !== "volume" && hasSoundActions) {
     prepareSoundEffects();
   }
   executionState.lastPoint = executionState.lastPoint ?? getInitialPoint();
@@ -290,6 +294,7 @@ async function runExecution(payload) {
         executionState.stopRequested = false;
         executionState.trackMoves = false;
         executionState.executionSpeed = 1;
+        executionState.soundVolume = "volume-2";
         executionState.clickSound = true;
         executionState.lastTarget = null;
         executionState.lastDelayMs = null;
